@@ -40,3 +40,18 @@ def test_euc_kr_document():
     xml = '<?xml version="1.0" encoding="euc-kr"?><DOCUMENT><BODY><PART><TITLE ATOC="Y">II. 사업의 내용</TITLE><P>한글 본문</P></PART></BODY></DOCUMENT>'
     doc = parse_dart_xml(xml.encode("euc-kr"))
     assert "한글 본문" in doc.sections()[0].own_text()
+
+
+def test_stray_angle_brackets_do_not_swallow_following_sections():
+    # 정관 본문의 "<부칙신설>", "<당기>" 같은 꺾쇠가 이후 섹션 전체를 삼키면 안 된다
+    xml = """<?xml version="1.0" encoding="utf-8"?><DOCUMENT><BODY>
+<SECTION-1><TITLE ATOC="Y">I. 회사의 개요</TITLE>
+<SECTION-2><TITLE ATOC="Y">5. 정관에 관한 사항</TITLE><P>제1조 개정 <부칙신설> 및 <당기> 손익</P></SECTION-2>
+</SECTION-1>
+<SECTION-1><TITLE ATOC="Y">II. 사업의 내용</TITLE><P>당사는 반도체 소재를 생산합니다.</P></SECTION-1>
+</BODY></DOCUMENT>""".encode("utf-8")
+    doc = parse_dart_xml(xml)
+    tops = [s.title for s in doc.root.children]
+    assert "II. 사업의 내용" in tops
+    art = next(s for s in doc.sections() if s.title == "5. 정관에 관한 사항")
+    assert "<부칙신설>" in art.own_text() and "반도체 소재" not in art.own_text()

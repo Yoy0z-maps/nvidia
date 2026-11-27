@@ -42,6 +42,24 @@ class App:
         return GraphStore.load(self.settings.graph_dir)
 
 
+def make_collector(settings: Settings, storage: Storage, dart: DartClient | None, llm=None,
+                   tokenizer=None) -> DisclosureCollector:
+    """공시 수집기. dart=None 이면 저장된 원본 XML 재처리(scripts.reparse)에만 쓸 수 있다."""
+    tok = tokenizer or get_tokenizer(settings.embedding_model)
+    chunker = SectionChunker(tok, settings.chunk_size, settings.chunk_overlap)
+
+    classifier = None
+    if llm is not None:
+        def classifier(titles: list[str]) -> list[str]:
+            out = llm.parse(
+                "공시 문서의 목차 중 회사의 사업 내용(제품, 원재료, 생산설비, 매출, 수주, 주요계약, 연구개발)에 해당하는 "
+                "항목만 그대로 골라라. 재무제표, 감사, 이사회, 주주, 배당 관련 항목은 제외한다.",
+                "\n".join(titles), SectionTitleClassification, purpose="section_fallback")
+            return out.selected_titles
+    selector = SectionSelector(token_counter=lambda t: len(tok.encode(t)), title_classifier=classifier)
+    return DisclosureCollector(settings, storage, dart, selector, chunker)
+
+
 def build_app(settings: Settings, *, need_dart: bool = True, need_openai: bool = True,
               embedder=None, llm=None, tokenizer=None, dart_client=None) -> App:
     settings.ensure_dirs()
@@ -66,21 +84,7 @@ def build_app(settings: Settings, *, need_dart: bool = True, need_openai: bool =
         vs = VectorStore(settings.index_path, storage, emb_store)
         retriever = Retriever(storage, vs, emb_store, settings.max_retrieval_calls)
 
-    collector = None
-    if dart is not None:
-        tok = tokenizer or get_tokenizer(settings.embedding_model)
-        chunker = SectionChunker(tok, settings.chunk_size, settings.chunk_overlap)
-
-        classifier = None
-        if llm is not None:
-            def classifier(titles: list[str]) -> list[str]:
-                out = llm.parse(
-                    "공시 문서의 목차 중 회사의 사업 내용(제품, 원재료, 생산설비, 매출, 수주, 주요계약, 연구개발)에 해당하는 "
-                    "항목만 그대로 골라라. 재무제표, 감사, 이사회, 주주, 배당 관련 항목은 제외한다.",
-                    "\n".join(titles), SectionTitleClassification, purpose="section_fallback")
-                return out.selected_titles
-        selector = SectionSelector(token_counter=lambda t: len(tok.encode(t)), title_classifier=classifier)
-        collector = DisclosureCollector(settings, storage, dart, selector, chunker)
+    collector = make_collector(settings, storage, dart, llm, tokenizer) if dart is not None else None
     resolver = EntityResolver(storage, registry, market)
     return App(settings, storage, dart, registry, market, collector, emb_store, vs, retriever, resolver, llm)
 

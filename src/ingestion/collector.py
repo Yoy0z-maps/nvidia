@@ -175,10 +175,12 @@ class DisclosureCollector:
         self.storage.set_company_status(corp_code, "CHUNKED" if ok else "FAILED")
         return res
 
-    def ingest_document(self, item: DisclosureItem, dtype: DocumentType, corp_name: str, stock_code: str) -> str:
+    def ingest_document(self, item: DisclosureItem, dtype: DocumentType, corp_name: str, stock_code: str,
+                        force: bool = False) -> str:
+        """force=True 이면 이미 처리된 문서도 저장된 원본 XML로 다시 파싱·청킹한다 (다운로드 없음)."""
         doc_id = item.rcept_no
         existing = self.storage.get_document(doc_id)
-        if existing and existing["ingestion_status"] in ("CHUNKED", "READY"):
+        if not force and existing and existing["ingestion_status"] in ("CHUNKED", "READY"):
             return "EXISTING"
         raw_dir: Path = self.s.raw_dir / (stock_code or item.corp_code) / item.rcept_no
         main_xml = raw_dir / f"{item.rcept_no}.xml"

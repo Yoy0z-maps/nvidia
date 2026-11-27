@@ -129,7 +129,18 @@ class ParsedDocument:
         return [s for s in self.root.walk() if s is not self.root]
 
 
+# 본문에 "<당기>", "<부칙신설>", "< 단서 신설>" 처럼 이스케이프되지 않은 꺾쇠가 섞인 공시가 있다.
+# recover 파서는 이를 닫히지 않은 태그로 보고 이후 본문 전체(사업의 내용 등)를 그 안에 넣어 버리므로,
+# DART 태그(영문 대문자)로 시작하지 않는 '<'는 파싱 전에 &lt; 로 바꾼다.
+_STRAY_LT = re.compile(rb"<(?![A-Za-z/!?])")
+
+
+def sanitize_xml(xml_bytes: bytes) -> bytes:
+    return _STRAY_LT.sub(b"&lt;", xml_bytes)
+
+
 def _parse_bytes(xml_bytes: bytes) -> etree._Element:
+    xml_bytes = sanitize_xml(xml_bytes)
     parser = etree.XMLParser(recover=True, huge_tree=True, resolve_entities=False, remove_comments=True)
     root = etree.fromstring(xml_bytes, parser=parser)
     if root is None or len(root) == 0:
