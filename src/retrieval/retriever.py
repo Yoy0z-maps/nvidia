@@ -113,7 +113,9 @@ class Retriever:
         for r in rows:
             by_emb[r["embedding_id"]].append(r)
         has_excluded = self.storage.one("SELECT 1 FROM companies WHERE ingestion_status='EXCLUDED' LIMIT 1")
-        filtered = bool(corp_codes or section_types or as_of_date or has_excluded)
+        # 검색 대상이 아닌 벡터(제외 기업·분기보고서 등)가 인덱스에 남아 있으면 허용 벡터만으로 검색한다
+        index = self.vs.index if self.vs.index is not None else self.vs.load()
+        filtered = bool(corp_codes or section_types or as_of_date or has_excluded or len(by_emb) < index.ntotal)
         allowed = set(by_emb) if filtered else None
 
         qv = self._query_vector(query)

@@ -45,3 +45,21 @@ def test_build_collect_embed_rerun(settings, sample_xml):
     collect_company(app, seed["corp_code"], seed["corp_name"], seed["stock_code"], progress=lambda m: None)
     out2 = embed_and_index(app, lambda m: None)
     assert counts["document"] == 1 and emb.calls == calls and out2["embedded"] == 0
+
+
+
+def test_existing_interim_reports_skipped_and_not_searched(settings, storage):
+    from src.pipeline import App, apply_document_policy
+    from src.discovery.entity_resolution import EntityResolver
+    from tests.test_retriever import build, seed_docs
+    seed_docs(storage, [("00000001", "가상메모리", "100001", "a1", "2024-03-10", ["HBM 연간 생산"]),
+                        ("00000001", "가상메모리", "100001", "q1", "2024-11-10", ["HBM 분기 생산"])])
+    storage.conn.execute("UPDATE documents SET document_type='분기보고서' WHERE document_id='q1'")
+    storage.conn.commit()
+    r, vs, es, _ = build(settings, storage)
+    app = App(settings, storage, None, None, None, None, es, vs, r, EntityResolver(storage), None)
+    assert apply_document_policy(app, lambda m: None) == 1
+    storage.conn.execute("DELETE FROM kv_cache"); storage.conn.commit()
+    assert [x.raw_text for x in r.search("HBM 생산", top_k=5)] == ["HBM 연간 생산"]
+    settings.collect_interim_reports = True
+    assert apply_document_policy(app, lambda m: None) == 1     # 다시 켜면 복구

@@ -227,7 +227,10 @@ class Storage:
     def chunks_without_embedding(self) -> list[dict]:
         return self.query(
             """SELECT ch.*, d.corp_code FROM chunks ch JOIN documents d USING(document_id)
-               WHERE ch.embedding_id IS NULL ORDER BY ch.chunk_id""")
+               JOIN companies c ON c.corp_code = d.corp_code
+               WHERE ch.embedding_id IS NULL AND d.ingestion_status NOT IN ('SKIPPED_INTERIM')
+                 AND c.ingestion_status != 'EXCLUDED'
+               ORDER BY ch.chunk_id""")
 
     def find_reusable_embedding(self, corp_code: str, content_hash: str, model: str, dims: int) -> int | None:
         """동일 기업·동일 본문의 기존 임베딩 재사용 (중복 임베딩 방지)."""
@@ -246,7 +249,7 @@ class Storage:
     def get_chunk(self, chunk_id: int) -> dict | None:
         return self.one(
             """SELECT ch.*, d.corp_code, d.published_at, d.source_url, d.document_type, d.rcept_no,
-                      c.corp_name, c.stock_code
+                      d.report_name, c.corp_name, c.stock_code
                FROM chunks ch JOIN documents d USING(document_id) JOIN companies c USING(corp_code)
                WHERE ch.chunk_id=?""", (chunk_id,))
 

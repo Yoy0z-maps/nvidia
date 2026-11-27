@@ -52,6 +52,7 @@ class Settings:
     embedding_batch_size: int = 64
     retrieval_top_k: int = 5
     max_major_disclosures: int = 10
+    collect_interim_reports: bool = False   # 반기·분기보고서 수집 여부 (기본: 사업보고서만)
 
     data_dir: Path = PROJECT_ROOT / "data"
     log_level: str = "INFO"
@@ -91,6 +92,7 @@ class Settings:
             embedding_batch_size=_int("EMBEDDING_BATCH_SIZE", 64),
             retrieval_top_k=_int("RETRIEVAL_TOP_K", 5),
             max_major_disclosures=_int("MAX_MAJOR_DISCLOSURES", 10),
+            collect_interim_reports=os.getenv("COLLECT_INTERIM_REPORTS", "false").strip().lower() in ("1", "true", "yes"),
             data_dir=data_dir,
             log_level=os.getenv("LOG_LEVEL", "INFO"),
             mcp_command=os.getenv("MCP_COMMAND", "node"),

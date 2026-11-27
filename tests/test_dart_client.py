@@ -121,6 +121,7 @@ def test_collector_plan_and_idempotent_ingest(settings, storage, sample_xml):
         return httpx.Response(404)
 
     storage.upsert_company("00000001", "테스트전자", "999999", "KOSPI")
+    settings.collect_interim_reports = True
     col = DisclosureCollector(settings, storage, _client(handler), SectionSelector(),
                               SectionChunker(CharTokenizer(), settings.chunk_size, settings.chunk_overlap))
     plan = col.plan_documents("00000001", as_of=dt.date(2024, 12, 31))
@@ -139,3 +140,26 @@ def test_collector_plan_and_idempotent_ingest(settings, storage, sample_xml):
     assert set(r2.skipped_existing) == set(r1.ingested)
     report = json.loads(storage.get_document("20240401000002")["section_report_json"])
     assert report["selected"] and report["excluded"]
+
+
+
+def test_default_collects_annual_only(settings, storage):
+    listing = [_disc("20240315000001", "사업보고서 (2023.12)", "20240315"),
+               _disc("20240814000003", "반기보고서 (2024.06)", "20240814"),
+               _disc("20241114000004", "분기보고서 (2024.09)", "20241114")]
+    h = lambda req: httpx.Response(200, json={"status": "000", "total_page": 1, "list": listing})
+    assert settings.collect_interim_reports is False
+    col = DisclosureCollector(settings, storage, _client(h), SectionSelector(),
+                              SectionChunker(CharTokenizer(), settings.chunk_size, settings.chunk_overlap))
+    plan = col.plan_documents("00000001", as_of=dt.date(2024, 12, 31))
+    assert [p[1] for p in plan] == [DocumentType.ANNUAL]
+
+
+def test_attachment_only_correction_not_selected(settings, storage):
+    listing = [_disc("20260317000001", "사업보고서 (2025.12)", "20260317"),
+               _disc("20260326000925", "[첨부정정]사업보고서 (2025.12)", "20260326")]
+    h = lambda req: httpx.Response(200, json={"status": "000", "total_page": 1, "list": listing})
+    col = DisclosureCollector(settings, storage, _client(h), SectionSelector(),
+                              SectionChunker(CharTokenizer(), settings.chunk_size, settings.chunk_overlap))
+    plan = col.plan_documents("00000001", as_of=dt.date(2026, 11, 27))
+    assert [p[0].rcept_no for p in plan] == ["20260317000001"]   # 본문 없는 첨부정정 대신 원본

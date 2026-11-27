@@ -15,3 +15,5 @@ data/logs/
 !data/evaluation/
 .DS_Store
 .mcp/
+dist/
+data_backup_*/

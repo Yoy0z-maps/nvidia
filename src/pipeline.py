@@ -98,9 +98,31 @@ def collect_company(app: App, corp_code: str, corp_name: str, stock_code: str, a
     return res.__dict__
 
 
+def apply_document_policy(app: App, progress: Callable[[str], None] = log.info) -> int:
+    """COLLECT_INTERIM_REPORTS=false 이면 이미 수집된 반기·분기보고서를 검색 대상에서 뺀다 (파일·벡터는 보존).
+
+    다시 true로 바꾸면 검색 대상으로 복구된다. 반환: 상태가 바뀐 문서 수.
+    """
+    interim = ("반기보고서", "분기보고서")
+    with app.storage.tx() as c:
+        if not app.settings.collect_interim_reports:
+            n = c.execute("UPDATE documents SET ingestion_status='SKIPPED_INTERIM' WHERE document_type IN (?,?) "
+                          "AND ingestion_status IN ('READY','CHUNKED')", interim).rowcount
+            msg = f"반기·분기보고서 {n}건을 검색 대상에서 제외 (COLLECT_INTERIM_REPORTS=false)"
+        else:
+            n = c.execute("UPDATE documents SET ingestion_status='CHUNKED' WHERE ingestion_status='SKIPPED_INTERIM'"
+                          ).rowcount
+            msg = f"반기·분기보고서 {n}건을 검색 대상으로 복구"
+    if n:
+        progress(msg)
+    return n
+
+
 def embed_and_index(app: App, progress: Callable[[str], None] = log.info) -> dict:
     if app.emb_store is None or app.vector_store is None:
         raise RuntimeError("임베딩 구성요소가 없습니다 (OPENAI_API_KEY 확인).")
+    apply_document_policy(app, progress)
+    # 검색 대상에서 빠진 문서(분기보고서 등)의 Chunk는 임베딩하지 않는다
     stats = app.emb_store.embed_pending_chunks()
     app.vector_store.load()
     added = app.vector_store.add_missing()

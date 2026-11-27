@@ -298,7 +298,14 @@ class RippleEngine:
         rows = []
         for cid, (path, nodes, start) in best.items():
             d = gs.g.nodes[cid]
-            evidence = [ev.model_dump() for e in path for ev in e.evidence]
+            evidence = []
+            for e in path:
+                for ev in e.evidence:
+                    src = evidence_source(self.storage, ev.chunk_id, ev.quote) or {}
+                    src.pop("raw_text", None)
+                    evidence.append({**ev.model_dump(), **src,
+                                     "relation": f"{gs.g.nodes[e.source_id]['name']} -[{e.relationship.value}]-> "
+                                                 f"{gs.g.nodes[e.target_id]['name']}"})
             rows.append({
                 "node_id": cid, "corp_name": d["name"], "stock_code": d.get("stock_code"), "corp_code": d.get("corp_code"),
                 "path": describe_path(gs, path, start) if path else "(이벤트 직접 연결 기업)",
@@ -340,8 +347,9 @@ class RippleEngine:
         """근거 미확인 가설 인사이트 (LLM 1회). 상장사 이름은 기업 사전으로 식별 가능한 것만 종목코드를 붙인다."""
         from src.schemas import HypothesisInsightList
         self._p("가설 인사이트 생성 중 (근거 미확인)")
+        context, sources = _insight_context(gs, rows, self.storage)
         data = (f"이벤트: {event.summary} (유형: {event.event_type.value})\n"
-                f"입력 원문: {event.input_quote}\n\n" + _insight_context(gs, rows))
+                f"입력 원문: {event.input_quote}\n\n" + context)
         out = self.llm.parse(load_prompt("hypothesis_insights", max_insights=max_insights), data,
                              HypothesisInsightList, purpose="hypothesis_insights")
         known = {r.get("stock_code") for r in rows}
@@ -355,7 +363,14 @@ class RippleEngine:
                                   "market_type": r.market_type if r else None,
                                   "resolved": bool(r), "in_graph": bool(r and r.stock_code in known),
                                   "note": "" if r else reason})
-            result.append({**ins.model_dump(), "companies": companies,
+            # 참고 공시: 실제로 제공한 목록에 있는 번호만 인정
+            basis = []
+            for cid in ins.basis_chunk_ids:
+                if cid in sources:
+                    b = dict(sources[cid])
+                    b.pop("raw_text", None)
+                    basis.append(b)
+            result.append({**ins.model_dump(), "companies": companies, "sources": basis,
                            "verification_status": VerificationStatus.HYPOTHESIS.value})
         return result
 
@@ -413,12 +428,30 @@ class RippleEngine:
         return out.summary, {"tiers": result_tiers, "caveat": out.caveat}
 
 
-def _insight_context(gs: GraphStore, rows: list[dict], limit: int = 40) -> str:
+def _insight_context(gs: GraphStore, rows: list[dict], storage: Storage, limit: int = 40,
+                     max_sources: int = 30) -> tuple[str, dict[int, dict]]:
+    """LLM에 줄 컨텍스트와, 번호로 인용할 수 있는 참고 공시 목록 {chunk_id: 출처}."""
     lines = ["[공시 기반 파급 그래프에서 찾은 기업 경로]"]
     lines += [f"- {r['corp_name']}: {r['path']}" for r in rows[:15]]
     names = sorted({d["name"] for _, d in gs.g.nodes(data=True) if d.get("node_type") not in ("EVENT",)})[:limit]
     lines.append("[그래프의 주요 노드] " + ", ".join(names))
-    return "\n".join(lines)
+    # 참고 공시: 그래프 관계의 근거 Chunk (검증 강도 순)
+    sources: dict[int, dict] = {}
+    for e in sorted(gs.edges(), key=lambda e: -STATUS_STRENGTH[e.verification_status]):
+        for ev in e.evidence:
+            if ev.chunk_id in sources or len(sources) >= max_sources:
+                continue
+            src = evidence_source(storage, ev.chunk_id, ev.quote)
+            if src:
+                src["relation"] = f"{gs.g.nodes[e.source_id]['name']} -[{e.relationship.value}]-> {gs.g.nodes[e.target_id]['name']}"
+                sources[ev.chunk_id] = src
+    if sources:
+        lines.append("\n[참고 공시] (basis_chunk_ids에는 아래 번호만 사용)")
+        for cid, s_ in sources.items():
+            lines.append(f"[chunk {cid}] {s_['corp_name']} | {s_['report_name']} ({s_['published_at']}) | "
+                         f"{s_['section_path']}\n  관계: {s_['relation']}\n  인용: {s_['quote']}\n"
+                         f"  원문 일부: {s_['raw_text'][:300]}")
+    return "\n".join(lines), sources
 
 
 def save_result(result: RippleResult, runs_dir: Path, storage: Storage, model: str, config: dict) -> Path:
@@ -431,3 +464,21 @@ def save_result(result: RippleResult, runs_dir: Path, storage: Storage, model: s
                      token_usage_json=json.dumps(result.budget, ensure_ascii=False),
                      status="COMPLETED" if result.stopped_reason == "탐색 완료" else "PARTIAL")
     return p
+
+
+def clean_section_path(path: str) -> str:
+    """DART XML의 묶음 태그(LIBRARY 등)를 뺀 사람이 읽는 섹션 경로."""
+    parts = [p.strip() for p in (path or "").split(">")]
+    return " > ".join(p for p in parts if p and p.upper() not in ("LIBRARY", "SECTION", "PART"))
+
+
+def evidence_source(storage: Storage, chunk_id: int, quote: str | None = None) -> dict | None:
+    """Chunk → 기업 · 문서 · 공시일 · 섹션 · DART 원문 링크 · 인용."""
+    ch = storage.get_chunk(chunk_id)
+    if not ch:
+        return None
+    return {"chunk_id": chunk_id, "corp_name": ch["corp_name"], "stock_code": ch.get("stock_code"),
+            "report_name": (ch.get("report_name") or ch.get("document_type") or "").strip(),
+            "document_type": ch.get("document_type"), "rcept_no": ch.get("rcept_no"),
+            "published_at": ch["published_at"], "section_path": clean_section_path(ch["section_path"]),
+            "source_url": ch.get("source_url") or "", "quote": quote or "", "raw_text": ch["raw_text"]}

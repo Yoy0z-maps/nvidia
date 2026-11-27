@@ -37,6 +37,11 @@ def _norm_report(name: str) -> str:
     return re.sub(r"[\s·ㆍ・\.\-]", "", s)
 
 
+def is_attachment_only(report_nm: str) -> bool:
+    head = report_nm.strip().split("]")[0] if report_nm.strip().startswith("[") else ""
+    return "첨부" in head
+
+
 def classify_report(report_nm: str) -> DocumentType | None:
     n = _norm_report(report_nm)
     for dtype, key in _TYPE_KEYS:
@@ -82,7 +87,11 @@ class DisclosureCollector:
 
     # ------------------------------------------------------------------
     def plan_documents(self, corp_code: str, as_of: dt.date | None = None) -> list[tuple[DisclosureItem, DocumentType]]:
-        """수집할 문서 선정: 최근 사업보고서 1, 그 이후 최신 반기/분기 1, 최근 365일 주요 공시 최대 N."""
+        """수집할 문서 선정: 최근 사업보고서 1, (설정 시) 그 이후 최신 반기/분기 1, 최근 365일 주요 공시 최대 N.
+
+        반기·분기보고서는 '기업공시서식 작성기준에 따라 분기보고서에는 본 항목을 기재하지 아니하였습니다'처럼
+        경영진단·계열회사 등 항목이 생략되는 경우가 많아 기본값으로 수집하지 않는다 (COLLECT_INTERIM_REPORTS).
+        """
         end = as_of or dt.date.today()
         periodic = [DisclosureItem(**x) for x in
                     self.dart.list_disclosures(corp_code, _ymd(end - dt.timedelta(days=550)), _ymd(end), "A")]
@@ -90,7 +99,8 @@ class DisclosureCollector:
                   self.dart.list_disclosures(corp_code, _ymd(end - dt.timedelta(days=365)), _ymd(end))]
         # 평가 기준일 이후 공시(정정 포함) 제외
         cutoff = _ymd(end)
-        periodic = [x for x in periodic if x.rcept_dt <= cutoff]
+        # [첨부정정]/[첨부추가]는 첨부서류(감사보고서 등)만 바꾼 공시라 본문(document.xml)이 없다 → 원본/기재정정본 사용
+        periodic = [x for x in periodic if x.rcept_dt <= cutoff and not is_attachment_only(x.report_nm)]
         recent = [x for x in recent if x.rcept_dt <= cutoff]
 
         def latest_version(items: list[tuple[DisclosureItem, DocumentType]]):
@@ -104,14 +114,23 @@ class DisclosureCollector:
         typed = [(x, classify_report(x.report_nm)) for x in periodic]
         annual = latest_version([(x, t) for x, t in typed if t == DocumentType.ANNUAL])
         interim = latest_version([(x, t) for x, t in typed if t in (DocumentType.HALF, DocumentType.QUARTER)])
+        collect_interim = getattr(self.s, "collect_interim_reports", False)
+        if not annual:
+            # 최근 1년 반 안에 사업보고서가 없으면 3년까지 넓혀 찾는다
+            older = [DisclosureItem(**x) for x in
+                     self.dart.list_disclosures(corp_code, _ymd(end - dt.timedelta(days=1100)), _ymd(end), "A")]
+            older = [x for x in older if x.rcept_dt <= cutoff and not is_attachment_only(x.report_nm)]
+            annual = latest_version([(x, t) for x in older if (t := classify_report(x.report_nm)) == DocumentType.ANNUAL])
         plan: list[tuple[DisclosureItem, DocumentType]] = []
         if annual:
             plan.append(annual[0])
             later = [x for x in interim if x[0].rcept_dt >= annual[0][0].rcept_dt]
-            if later:
+            if collect_interim and later:
                 plan.append(later[0])
-        elif interim:
+        elif collect_interim and interim:
             plan.append(interim[0])
+        else:
+            self.storage.log("collect", "WARNING", "최근 3년 안에 사업보고서가 없습니다 (정기보고서 미수집).", corp_code)
 
         seen = {p[0].rcept_no for p in plan}
         major = []

@@ -41,3 +41,14 @@ def test_html_embeds_data_safely():
     assert "</script>" not in script
     assert json.loads(script)["nodes"]
     assert "<script src=" not in html and "https://d3js.org v7.9.0" in html   # d3를 내장 (인터넷 불필요)
+
+
+def test_payload_marks_weak_and_korean_relation():
+    p = graph_payload(_graph())
+    e1 = next(l for l in p["links"] if l["id"] == "e1")
+    e2 = next(l for l in p["links"] if l["id"] == "e2")
+    assert e1["weak"] is False and e1["relKo"] == "생산"
+    assert e2["weak"] is True and e2["status"] == "HYPOTHESIS"
+    html = to_d3_html(_graph())
+    assert 'id="weak"' in html and 'data-m="select"' in html   # 툴바: 미검증 토글, 관계 이름 모드
+    assert "const R = 8" in html                                  # 노드 크기 동일

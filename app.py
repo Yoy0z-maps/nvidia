@@ -105,7 +105,8 @@ with st.sidebar:
         st.caption(f"FAISS: {json.loads(meta.read_text())}")
     st.caption(f"LLM: {settings.llm_model}")
 
-tabs = st.tabs(["Research", "Knowledge Graph", "Financial Analysis", "Evaluation", "Data Explorer"])
+# Financial Analysis, Evaluation 탭은 비활성화 (아래 주석 처리된 코드 참고)
+tabs = st.tabs(["Research", "Knowledge Graph", "Data Explorer"])
 
 # ---------------------------------------------------------------- Research
 with tabs[0]:
@@ -171,22 +172,23 @@ with tabs[0]:
                 Path(row["result_path"]).write_text(json.dumps(res, ensure_ascii=False, indent=2, default=str),
                                                     encoding="utf-8")
 
-        render_result(res, on_fetch_financial=_fetch_financial if not missing else None)
+        from src.research.ripple_engine import evidence_source
+        render_result(res, on_fetch_financial=_fetch_financial if not missing else None,
+                      chunk_lookup=lambda cid: evidence_source(storage(), cid) if cid else None)
 
 # ---------------------------------------------------------------- Graph
 with tabs[1]:
     res = st.session_state.get("result")
-    src = st.radio("그래프", ["현재 분석 결과", "지식 기반(탐색 결과)"], horizontal=True)
+    src = st.radio("그래프", ["현재 분석 결과", "지식 기반(탐색 결과)"], horizontal=True,
+                   captions=[f"질문 1건의 분석 그래프 · {(res or {}).get('input_text', '선택된 실행 없음')[:40]}",
+                             "bootstrap 관련 기업 탐색으로 쌓인 공통 그래프 (질문과 무관)"])
     gs = GraphStore.from_dict(res["graph"]) if (src == "현재 분석 결과" and res) else GraphStore.load(settings.graph_dir)
-    c1, c2 = st.columns(2)
-    weak = c1.checkbox("미검증 가설 포함", True)
-    edge_labels = c2.checkbox("관계 이름 표시", True)
     if gs.g.number_of_edges():
-        graph_html = to_d3_html(gs, height=660, include_weak=weak, show_edge_labels=edge_labels)
+        graph_html = to_d3_html(gs, height=680)
         if hasattr(st, "iframe"):
-            st.iframe(graph_html, height=680)
+            st.iframe(graph_html, height=700)
         else:
-            components.html(graph_html, height=680)
+            components.html(graph_html, height=700)
         edges = gs.edges()
         names = {n: d["name"] for n, d in gs.g.nodes(data=True)}
         label = {f"{names[e.source_id]} -{e.relationship.value}-> {names[e.target_id]} [{e.verification_status.value}]": e
@@ -203,67 +205,69 @@ with tabs[1]:
     else:
         st.info("그래프가 비어 있습니다.")
 
-# ---------------------------------------------------------------- Financial
-with tabs[2]:
-    res = st.session_state.get("result")
-    if not res:
-        st.info("먼저 Research 탭에서 분석을 실행하거나 결과를 불러오세요.")
-    else:
-        default_date = res["event"].get("event_date") or (dt.date.today() - dt.timedelta(days=30)).isoformat()
-        ev_date = st.text_input("이벤트 기준일", default_date)
-        st.caption("벤치마크: data/market/benchmarks/{KOSPI,KOSDAQ}.csv (date,close) 또는 KRX 지수 API")
-        if st.button("금융 데이터 조회 (Korea Stock MCP)"):
-            from src.financial.analysis import run_for_result
-            with st.spinner("KRX 주가 조회 중 (처음 조회하는 날짜는 시간이 걸립니다)"):
-                st.session_state.fin = run_for_result(res, get_app(seed_code), ev_date)
-                res["financial"] = st.session_state.fin
-        fin = st.session_state.get("fin")
-        if fin:
-            from src.ui.research_view import render_financial
-            render_financial(fin)
-
-# ---------------------------------------------------------------- Evaluation
-with tabs[3]:
-    ev_file = settings.evaluation_dir / "events.json"
-    if ev_file.exists():
-        events = json.loads(ev_file.read_text(encoding="utf-8"))["events"]
-        sel = st.selectbox("평가 이벤트", [e["event_id"] for e in events])
-        ev = next(e for e in events if e["event_id"] == sel)
-        st.write(ev["input_text"])
-        as_of_eval = st.text_input("평가 기준일", ev["as_of_date"])
-        if st.button("A/B/C 비교 실행", disabled=bool(missing)):
-            from src.evaluation.historical_replay import replay_event
-            from src.pipeline import seed_company
-            app = get_app(seed_code)
-            cb = log_box()
-            ev = {**ev, "as_of_date": as_of_eval}
-            try:
-                st.session_state.eval = replay_event(app, ev, seed_company(app), settings.evaluation_dir / "results",
-                                                     progress=cb)
-            except Exception as exc:
-                st.error(f"평가 실패: {exc}")
-        rd = settings.evaluation_dir / "results" / sel / "metrics.json"
-        rep = st.session_state.get("eval") or (json.loads(rd.read_text(encoding="utf-8")) if rd.exists() else None)
-        if rep:
-            rows = []
-            for arm, m in rep["metrics"].items():
-                if isinstance(m, dict) and "latency_ms" in m:
-                    rows.append({"실험군": arm, "Company P": m["company"].get("precision"),
-                                 "Company R": m["company"].get("recall"), "Quote Acc": m["quote_accuracy"],
-                                 "Path Validity": m.get("path_validity"),
-                                 "Novel(verified)": (m.get("valid_novel_discovery") or {}).get("count_verified"),
-                                 "Market Dir Acc": (m.get("market_direction") or {}).get("accuracy"),
-                                 "Latency(ms)": m["latency_ms"], "Tokens in": m["token_usage"].get("input_tokens"),
-                                 "Tokens out": m["token_usage"].get("output_tokens"), "Cost($)": m["estimated_cost_usd"]})
-            st.dataframe(pd.DataFrame(rows), width="stretch")
-            if not rep.get("ground_truth_labeled"):
-                st.warning("정답 라벨이 없어 Precision/Recall 등은 계산되지 않았습니다. events.json의 ground_truth를 사람이 작성하세요.")
-            st.caption(rep["leakage_note"])
-    else:
-        st.info("data/evaluation/events.json 이 없습니다.")
-
+# [비활성화] Financial Analysis / Evaluation 탭 - 필요 시 아래 주석을 풀고 tabs 목록에 다시 추가
+# (주가 반응은 Research 탭의 '주가 반응 (KRX)' 섹션에서 계속 볼 수 있음)
+# # ---------------------------------------------------------------- Financial
+# with tabs[2]:
+#     res = st.session_state.get("result")
+#     if not res:
+#         st.info("먼저 Research 탭에서 분석을 실행하거나 결과를 불러오세요.")
+#     else:
+#         default_date = res["event"].get("event_date") or (dt.date.today() - dt.timedelta(days=30)).isoformat()
+#         ev_date = st.text_input("이벤트 기준일", default_date)
+#         st.caption("벤치마크: data/market/benchmarks/{KOSPI,KOSDAQ}.csv (date,close) 또는 KRX 지수 API")
+#         if st.button("금융 데이터 조회 (Korea Stock MCP)"):
+#             from src.financial.analysis import run_for_result
+#             with st.spinner("KRX 주가 조회 중 (처음 조회하는 날짜는 시간이 걸립니다)"):
+#                 st.session_state.fin = run_for_result(res, get_app(seed_code), ev_date)
+#                 res["financial"] = st.session_state.fin
+#         fin = st.session_state.get("fin")
+#         if fin:
+#             from src.ui.research_view import render_financial
+#             render_financial(fin)
+#
+# # ---------------------------------------------------------------- Evaluation
+# with tabs[3]:
+#     ev_file = settings.evaluation_dir / "events.json"
+#     if ev_file.exists():
+#         events = json.loads(ev_file.read_text(encoding="utf-8"))["events"]
+#         sel = st.selectbox("평가 이벤트", [e["event_id"] for e in events])
+#         ev = next(e for e in events if e["event_id"] == sel)
+#         st.write(ev["input_text"])
+#         as_of_eval = st.text_input("평가 기준일", ev["as_of_date"])
+#         if st.button("A/B/C 비교 실행", disabled=bool(missing)):
+#             from src.evaluation.historical_replay import replay_event
+#             from src.pipeline import seed_company
+#             app = get_app(seed_code)
+#             cb = log_box()
+#             ev = {**ev, "as_of_date": as_of_eval}
+#             try:
+#                 st.session_state.eval = replay_event(app, ev, seed_company(app), settings.evaluation_dir / "results",
+#                                                      progress=cb)
+#             except Exception as exc:
+#                 st.error(f"평가 실패: {exc}")
+#         rd = settings.evaluation_dir / "results" / sel / "metrics.json"
+#         rep = st.session_state.get("eval") or (json.loads(rd.read_text(encoding="utf-8")) if rd.exists() else None)
+#         if rep:
+#             rows = []
+#             for arm, m in rep["metrics"].items():
+#                 if isinstance(m, dict) and "latency_ms" in m:
+#                     rows.append({"실험군": arm, "Company P": m["company"].get("precision"),
+#                                  "Company R": m["company"].get("recall"), "Quote Acc": m["quote_accuracy"],
+#                                  "Path Validity": m.get("path_validity"),
+#                                  "Novel(verified)": (m.get("valid_novel_discovery") or {}).get("count_verified"),
+#                                  "Market Dir Acc": (m.get("market_direction") or {}).get("accuracy"),
+#                                  "Latency(ms)": m["latency_ms"], "Tokens in": m["token_usage"].get("input_tokens"),
+#                                  "Tokens out": m["token_usage"].get("output_tokens"), "Cost($)": m["estimated_cost_usd"]})
+#             st.dataframe(pd.DataFrame(rows), width="stretch")
+#             if not rep.get("ground_truth_labeled"):
+#                 st.warning("정답 라벨이 없어 Precision/Recall 등은 계산되지 않았습니다. events.json의 ground_truth를 사람이 작성하세요.")
+#             st.caption(rep["leakage_note"])
+#     else:
+#         st.info("data/evaluation/events.json 이 없습니다.")
+#
 # ---------------------------------------------------------------- Data Explorer
-with tabs[4]:
+with tabs[2]:
     s = storage()
     st.subheader("수집 기업")
     st.dataframe(pd.DataFrame(s.list_companies()), width="stretch")

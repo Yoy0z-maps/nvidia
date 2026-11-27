@@ -164,6 +164,7 @@ def test_ripple_engine_multihop_with_evidence(settings, storage):
             return {"relations": rels["TC 본더"]}
         return {"relations": []}
 
+    BASIS_OK = c_hbm
     llm = FakeLLM({
         "event_extraction": {"event_type": "DEMAND_INCREASE", "is_hypothetical": True, "entity_names": [],
                              "industries": [], "products": [], "event_date": "2030-01-01",
@@ -182,7 +183,7 @@ def test_ripple_engine_multihop_with_evidence(settings, storage):
         "hypothesis_insights": {"insights": [
             {"title": "패키징 소재 수요 증가 가능성", "tier": 2, "kind": "원자재", "direction": "POSITIVE",
              "rationale": "적층 수 증가", "related_listed_companies": ["가상소재", "존재하지않는회사"],
-             "what_to_check": "주요 원재료 매입처"}]},
+             "what_to_check": "주요 원재료 매입처", "basis_chunk_ids": [BASIS_OK, 99999]}]},
     })
     engine = RippleEngine(storage, llm, retriever, make_resolver(storage),
                           RippleConfig(max_hops=3, max_llm_calls=25, max_retrieval_calls=20))
@@ -201,6 +202,11 @@ def test_ripple_engine_multihop_with_evidence(settings, storage):
         assert names["가상장비"]["revenue_exposure"] == "UNKNOWN"
         assert names["가상장비"]["role"] == "공급사"
     ins = res.insights[0]
+    # 참고 공시: 제공한 목록에 있는 Chunk만, 문서·섹션 정보 포함
+    assert [x["chunk_id"] for x in ins["sources"]] == [c_hbm]
+    assert ins["sources"][0]["report_name"] == "사업보고서" and ins["sources"][0]["section_path"] == "II. 사업의 내용"
+    ev0 = next(r for r in res.company_results if r["evidence"])["evidence"][0]
+    assert ev0["section_path"] and ev0["report_name"] and ev0["relation"]
     assert ins["verification_status"] == "HYPOTHESIS"
     assert ins["companies"][0]["stock_code"] == "100003" and ins["companies"][1]["resolved"] is False
     tier_names = [i["name"] for t in res.tiers for i in t["items"]]

@@ -335,6 +335,7 @@ class HypothesisInsight(BaseModel):
     rationale: str = Field(description="왜 그렇게 볼 수 있는지 (산업 구조 관점, 2~3문장)")
     related_listed_companies: list[str] = Field(description="관련 국내 상장사 한글 정식 명칭 (모르면 빈 목록)")
     what_to_check: str = Field(description="이 가설을 확인하려면 무엇을 봐야 하는지")
+    basis_chunk_ids: list[int] = Field(description="이 가설을 떠올리는 데 참고한 [chunk N]의 N 목록. 참고한 공시가 없으면 빈 목록")
 
 
 class HypothesisInsightList(BaseModel):

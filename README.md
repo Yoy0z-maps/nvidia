@@ -59,6 +59,7 @@ docs/korea_stock_mcp_1.4.1_tools.json   실제 list_tools 결과
 
 | 요구사항 | 구현 |
 |---|---|
+| 정기보고서 | 기본은 최근 사업보고서만 수집 (`COLLECT_INTERIM_REPORTS=false`). 분기·반기보고서는 경영진단·계열회사 항목이 생략되는 경우가 많아 제외. 이미 받은 분기보고서는 검색 대상에서만 빠지고 파일·벡터는 보존 |
 | 기업 수 | 기본 20개 (`MAX_COMPANIES`), 탐색 노드당 후보 5개 (`MAX_DISCOVERY_PER_NODE`). 상한을 올려 다시 실행하면 이미 수집·임베딩한 기업은 재사용하고 새 기업만 추가 |
 | 그래프 시각화 | d3-force Disjoint force-directed graph (forceX/forceY, 드래그·줌·연결 강조). Pyvis 대신 사용. 브라우저에서 cdn.jsdelivr.net 접근 필요 |
 | 하드코딩 금지 | Seed는 `SEED_STOCK_CODE`, 관련 기업·경로는 탐색 결과로만 생성 |

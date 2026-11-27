@@ -23,6 +23,8 @@ def main() -> int:
     ap.add_argument("--max-companies", type=int)
     ap.add_argument("--max-hops", type=int)
     ap.add_argument("--skip-discovery", action="store_true", help="Seed 데이터만 구축")
+    ap.add_argument("--recollect", action="store_true",
+                    help="이미 수집한 기업도 공시 목록을 다시 확인해 빠진 문서만 추가 수집 (기존 문서·임베딩은 재사용)")
     ap.add_argument("--discovery-llm-calls", type=int, help="관련 기업 탐색 LLM 호출 상한 (기본: 기업 수 x 8)")
     ap.add_argument("--per-node", type=int, help="탐색 노드당 후보 기업 수 (기본: MAX_DISCOVERY_PER_NODE)")
     args = ap.parse_args()
@@ -53,6 +55,13 @@ def main() -> int:
         print(f"  - {d['rcept_dt']} {d['report_nm']} ({d['type']})")
     if res["failed"]:
         print("  실패:", json.dumps(res["failed"], ensure_ascii=False))
+
+    if args.recollect:
+        others = [c for c in app.storage.list_companies()
+                  if c["corp_code"] != seed["corp_code"] and c["ingestion_status"] != "EXCLUDED" and c["stock_code"]]
+        print(f"\n[1+/3] 기존 기업 {len(others)}개 공시 재확인 (빠진 문서만 수집)")
+        for c in others:
+            collect_company(app, c["corp_code"], c["corp_name"], c["stock_code"], progress=print)
 
     print("\n[2/3] 임베딩 및 FAISS 인덱스")
     stats = embed_and_index(app, print)
