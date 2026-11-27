@@ -1,0 +1,526 @@
+{
+    "schema_version":  "1.0",
+    "anchor":  {
+                   "name":  "SK하이닉스",
+                   "corp_code":  "00164779"
+               },
+    "criteria":  {
+                     "tier1":  "SK하이닉스와 해당 분야에서 직접 거래하거나 경쟁하는 항목",
+                     "tier2":  "1차 항목을 거쳐 영향을 받는 공급망, 장비, 소재",
+                     "tier3":  "간접 수요, 인프라, 전방 산업을 거쳐 영향을 받는 항목"
+                 },
+    "items":  [
+                  {
+                      "item_id":  "COM-00126380",
+                      "name":  "삼성전자",
+                      "item_type":  "company",
+                      "corp_code":  "00126380",
+                      "stock_code":  "005930",
+                      "default_tier":  1,
+                      "relation":  "SK하이닉스와 HBM 시장에서 직접 경쟁한다.",
+                      "keywords":  [
+                                       "HBM",
+                                       "HBM4E",
+                                       "DRAM"
+                                   ]
+                  },
+                  {
+                      "item_id":  "COM-00445054",
+                      "name":  "하나마이크론",
+                      "item_type":  "company",
+                      "corp_code":  "00445054",
+                      "stock_code":  "067310",
+                      "default_tier":  2,
+                      "relation":  "반도체 패키징·테스트 사업을 한다. 메모리 제조사의 후공정 외주 물량이나 요구 사양이 바뀌면 영향을 받을 수 있다.",
+                      "keywords":  [
+                                       "반도체 패키징",
+                                       "테스트",
+                                       "메모리 후공정"
+                                   ]
+                  },
+                  {
+                      "item_id":  "FLD-001",
+                      "name":  "후공정 패키징",
+                      "item_type":  "field",
+                      "default_tier":  2,
+                      "relation":  "HBM 제조사가 적층·본딩 방식을 바꾸면 패키징 공정과 장비 수요가 달라질 수 있다.",
+                      "keywords":  [
+                                       "HBM",
+                                       "패키징",
+                                       "하이브리드 본딩"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-00445054"
+                                        ]
+                  },
+                  {
+                      "item_id":  "COM-01205851",
+                      "name":  "HD현대일렉트릭",
+                      "item_type":  "company",
+                      "corp_code":  "01205851",
+                      "stock_code":  "267260",
+                      "default_tier":  3,
+                      "relation":  "데이터센터용 전력·배전기기를 공급하는 기업이다. AI 서버 확대가 데이터센터 증설로 이어지면 관련 기기의 발주 수요가 늘 수 있다.",
+                      "keywords":  [
+                                       "데이터센터",
+                                       "전력기기",
+                                       "배전기기"
+                                   ]
+                  },
+                  {
+                      "item_id":  "CAT-001",
+                      "name":  "데이터센터 전력 인프라",
+                      "item_type":  "category",
+                      "default_tier":  3,
+                      "relation":  "HBM을 탑재한 AI 서버 도입이 데이터센터 증설로 이어질 경우 전력·배전 설비 수요가 늘 수 있다.",
+                      "keywords":  [
+                                       "AI 서버",
+                                       "데이터센터",
+                                       "전력 인프라"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-01205851"
+                                        ]
+                  },
+                  {
+                      "item_id":  "COM-00401731",
+                      "name":  "LG전자",
+                      "item_type":  "company",
+                      "corp_code":  "00401731",
+                      "stock_code":  "066570",
+                      "default_tier":  3,
+                      "relation":  "AI 데이터센터용 냉각 장비를 개발한다. 고밀도 AI 서버 도입이 확대되면 관련 냉각 장비 수요가 늘 수 있다.",
+                      "keywords":  [
+                                       "AI 데이터센터",
+                                       "칠러",
+                                       "액체냉각"
+                                   ]
+                  },
+                  {
+                      "item_id":  "CAT-002",
+                      "name":  "데이터센터 냉각 설비",
+                      "item_type":  "category",
+                      "default_tier":  3,
+                      "relation":  "고밀도 AI 서버 도입이 늘면 데이터센터의 냉각 설비 수요가 증가할 수 있다.",
+                      "keywords":  [
+                                       "AI 서버",
+                                       "데이터센터",
+                                       "냉각 설비"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-00401731"
+                                        ]
+                  },
+                  {
+                      "item_id":  "COM-00535676",
+                      "name":  "테크윙",
+                      "item_type":  "company",
+                      "corp_code":  "00535676",
+                      "stock_code":  "089030",
+                      "default_tier":  2,
+                      "relation":  "HBM 검사 장비를 개발한다. 메모리 제조사가 검사 설비 투자를 확대하면 장비 수요가 늘 수 있다.",
+                      "keywords":  [
+                                       "HBM",
+                                       "Cube Prober",
+                                       "검사 장비"
+                                   ]
+                  },
+                  {
+                      "item_id":  "FLD-002",
+                      "name":  "HBM 검사 장비",
+                      "item_type":  "field",
+                      "default_tier":  2,
+                      "relation":  "HBM 제조사가 적층 구조나 검사 기준을 변경하면 검사 장비에 필요한 성능과 사양이 달라질 수 있다.",
+                      "keywords":  [
+                                       "HBM",
+                                       "적층",
+                                       "검사 장비"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-00535676"
+                                        ]
+                  },
+                  {
+                      "item_id":  "COM-01365825",
+                      "name":  "피에스케이",
+                      "item_type":  "company",
+                      "corp_code":  "01365825",
+                      "stock_code":  "319660",
+                      "default_tier":  2,
+                      "relation":  "드라이 스트립과 건식 세정 장비를 생산한다. 메모리 제조사가 해당 공정의 설비 투자를 늘리면 관련 장비 발주가 늘 수 있다.",
+                      "keywords":  [
+                                       "반도체 전공정",
+                                       "드라이 스트립",
+                                       "건식 세정"
+                                   ]
+                  },
+                  {
+                      "item_id":  "FLD-003",
+                      "name":  "DRAM 전공정 장비",
+                      "item_type":  "field",
+                      "default_tier":  2,
+                      "relation":  "메모리 제조사가 DRAM 생산 비중이나 공정 계획을 바꾸면 전공정 장비의 발주 규모와 시점이 달라질 수 있다.",
+                      "keywords":  [
+                                       "DRAM",
+                                       "전공정",
+                                       "장비 발주"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-01365825"
+                                        ]
+                  },
+                  {
+                      "item_id":  "COM-00161383",
+                      "name":  "한미반도체",
+                      "item_type":  "company",
+                      "corp_code":  "00161383",
+                      "stock_code":  "042700",
+                      "default_tier":  1,
+                      "relation":  "SK하이닉스와 HBM4 제조용 TC 본더 공급계약을 체결했다. SK하이닉스의 HBM 적층 설비 투자에 따라 후속 발주 수요가 달라질 수 있다.",
+                      "keywords":  [
+                                       "HBM4",
+                                       "TC 본더",
+                                       "적층 장비"
+                                   ]
+                  },
+                  {
+                      "item_id":  "COM-00531014",
+                      "name":  "유진테크",
+                      "item_type":  "company",
+                      "corp_code":  "00531014",
+                      "stock_code":  "084370",
+                      "default_tier":  1,
+                      "relation":  "SK하이닉스와 반도체 제조장비 공급계약을 체결한 이력이 있다. SK하이닉스의 제조설비 투자 계획에 따라 장비 발주가 달라질 수 있다.",
+                      "keywords":  [
+                                       "반도체 제조장비",
+                                       "전공정",
+                                       "설비 투자"
+                                   ]
+                  },
+                  {
+                      "item_id":  "COM-00252135",
+                      "name":  "주성엔지니어링",
+                      "item_type":  "company",
+                      "corp_code":  "00252135",
+                      "stock_code":  "036930",
+                      "default_tier":  1,
+                      "relation":  "SK하이닉스와 반도체 제조장비 공급계약을 체결한 이력이 있다. SK하이닉스의 공정 투자 일정이 바뀌면 후속 장비 발주 시점도 달라질 수 있다.",
+                      "keywords":  [
+                                       "반도체 제조장비",
+                                       "공정 투자",
+                                       "장비 발주"
+                                   ]
+                  },
+                  {
+                      "item_id":  "COM-01261893",
+                      "name":  "케이씨텍",
+                      "item_type":  "company",
+                      "corp_code":  "01261893",
+                      "stock_code":  "281820",
+                      "default_tier":  1,
+                      "relation":  "SK하이닉스와 반도체 제조장비 공급계약을 체결했다. SK하이닉스가 제조설비 투자를 조정하면 후속 발주 규모가 달라질 수 있다.",
+                      "keywords":  [
+                                       "반도체 제조장비",
+                                       "설비 투자",
+                                       "공급계약"
+                                   ]
+                  },
+                  {
+                      "item_id":  "FLD-004",
+                      "name":  "박막 증착 장비",
+                      "item_type":  "field",
+                      "default_tier":  2,
+                      "relation":  "메모리 제조사가 DRAM 공정에 사용하는 박막의 사양을 바꾸거나 증착 설비를 증설하면 증착 장비의 요구 성능과 발주량이 달라질 수 있다.",
+                      "keywords":  [
+                                       "박막 증착",
+                                       "ALD",
+                                       "CVD",
+                                       "DRAM"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-00252135"
+                                        ]
+                  },
+                  {
+                      "item_id":  "FLD-005",
+                      "name":  "CMP 장비",
+                      "item_type":  "field",
+                      "default_tier":  2,
+                      "relation":  "메모리 제조사가 웨이퍼 평탄화 공정의 처리량이나 정밀도 요구를 높이면 CMP 장비의 사양과 발주 계획이 달라질 수 있다.",
+                      "keywords":  [
+                                       "CMP",
+                                       "웨이퍼",
+                                       "평탄화",
+                                       "연마 장비"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-01261893"
+                                        ]
+                  },
+                  {
+                      "item_id":  "FLD-006",
+                      "name":  "CMP 연마 소재",
+                      "item_type":  "field",
+                      "default_tier":  2,
+                      "relation":  "메모리 제조사의 웨이퍼 투입량이 바뀌면 CMP 슬러리 사용량이 달라질 수 있고, 연마 대상 막질이 바뀌면 필요한 슬러리 종류도 달라질 수 있다.",
+                      "keywords":  [
+                                       "CMP",
+                                       "슬러리",
+                                       "연마 소재",
+                                       "웨이퍼"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-01261893"
+                                        ]
+                  },
+                  {
+                      "item_id":  "COM-00118804",
+                      "name":  "동진쎄미켐",
+                      "item_type":  "company",
+                      "corp_code":  "00118804",
+                      "stock_code":  "005290",
+                      "default_tier":  2,
+                      "relation":  "반도체용 포토레지스트를 생산한다. 메모리 제조사가 노광 공정이나 생산량을 조정하면 관련 소재 수요가 달라질 수 있다.",
+                      "keywords":  [
+                                       "포토레지스트",
+                                       "노광 소재",
+                                       "반도체"
+                                   ]
+                  },
+                  {
+                      "item_id":  "FLD-007",
+                      "name":  "반도체 노광 소재",
+                      "item_type":  "field",
+                      "default_tier":  2,
+                      "relation":  "메모리 제조사가 DRAM 공정에 적용하는 노광 방식이나 웨이퍼 투입량을 바꾸면 필요한 포토레지스트의 종류와 사용량이 달라질 수 있다.",
+                      "keywords":  [
+                                       "DRAM",
+                                       "노광",
+                                       "포토레지스트"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-00118804"
+                                        ]
+                  },
+                  {
+                      "item_id":  "COM-00623661",
+                      "name":  "원익머트리얼즈",
+                      "item_type":  "company",
+                      "corp_code":  "00623661",
+                      "stock_code":  "104830",
+                      "default_tier":  2,
+                      "relation":  "DRAM 등 반도체 제조에 쓰이는 고순도 특수가스를 생산한다. 메모리 제조사의 생산량과 공정 구성이 바뀌면 관련 가스 수요도 달라질 수 있다.",
+                      "keywords":  [
+                                       "특수가스",
+                                       "DRAM",
+                                       "반도체 소재"
+                                   ]
+                  },
+                  {
+                      "item_id":  "FLD-008",
+                      "name":  "반도체 공정용 특수가스",
+                      "item_type":  "field",
+                      "default_tier":  2,
+                      "relation":  "메모리 제조사가 증착·식각 공정의 가동률이나 공정 조건을 조정하면 해당 공정에 투입되는 특수가스 수요가 달라질 수 있다.",
+                      "keywords":  [
+                                       "특수가스",
+                                       "증착",
+                                       "식각",
+                                       "DRAM"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-00623661"
+                                        ]
+                  },
+                  {
+                      "item_id":  "COM-00126371",
+                      "name":  "삼성전기",
+                      "item_type":  "company",
+                      "corp_code":  "00126371",
+                      "stock_code":  "009150",
+                      "default_tier":  2,
+                      "relation":  "AI 서버용 고성능 반도체 기판 사업을 한다. 가속기 제조사가 패키지 설계나 생산량을 바꾸면 고성능 기판의 요구 사양과 발주량이 달라질 수 있다.",
+                      "keywords":  [
+                                       "FC-BGA",
+                                       "AI 서버",
+                                       "패키지 기판"
+                                   ]
+                  },
+                  {
+                      "item_id":  "FLD-009",
+                      "name":  "AI 가속기용 패키지 기판",
+                      "item_type":  "field",
+                      "default_tier":  2,
+                      "relation":  "HBM을 탑재하는 AI 가속기의 생산량이나 패키지 구성이 바뀌면 가속기 패키지에 쓰이는 고성능 기판의 수요나 사양도 달라질 수 있다.",
+                      "keywords":  [
+                                       "HBM",
+                                       "AI 가속기",
+                                       "FC-BGA",
+                                       "패키지 기판"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-00126371"
+                                        ]
+                  },
+                  {
+                      "item_id":  "COM-00120030",
+                      "name":  "GS건설",
+                      "item_type":  "company",
+                      "default_tier":  3,
+                      "relation":  "데이터센터 구축 사업을 추진한다. AI 인프라 증설이 건설 프로젝트 발주로 이어지면 수주 기회가 늘 수 있다.",
+                      "keywords":  [
+                                       "데이터센터",
+                                       "건설",
+                                       "설계"
+                                   ],
+                      "corp_code":  "00120030",
+                      "stock_code":  "006360"
+                  },
+                  {
+                      "item_id":  "COM-00149655",
+                      "name":  "삼성물산",
+                      "item_type":  "company",
+                      "default_tier":  3,
+                      "relation":  "데이터센터 건설 수주 이력이 있다. 센터 증설이 확대되면 시공 수요가 늘 수 있다.",
+                      "keywords":  [
+                                       "데이터센터",
+                                       "건설",
+                                       "시공"
+                                   ],
+                      "corp_code":  "00149655",
+                      "stock_code":  "028260"
+                  },
+                  {
+                      "item_id":  "CAT-003",
+                      "name":  "데이터센터 건설",
+                      "item_type":  "category",
+                      "default_tier":  3,
+                      "relation":  "AI 서버 증설이 신규 데이터센터 건설로 이어지면 설계·시공 발주가 늘 수 있다.",
+                      "keywords":  [
+                                       "AI 서버",
+                                       "데이터센터",
+                                       "건설"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-00120030",
+                                            "COM-00149655"
+                                        ]
+                  },
+                  {
+                      "item_id":  "COM-00571483",
+                      "name":  "오이솔루션",
+                      "item_type":  "company",
+                      "default_tier":  3,
+                      "relation":  "데이터센터를 대상으로 광트랜시버 제품을 개발한다. 센터 내 고속 연결이 늘면 관련 모듈의 수요가 늘 수 있다.",
+                      "keywords":  [
+                                       "데이터센터",
+                                       "광트랜시버",
+                                       "광통신"
+                                   ],
+                      "corp_code":  "00571483",
+                      "stock_code":  "138080"
+                  },
+                  {
+                      "item_id":  "CAT-004",
+                      "name":  "데이터센터 광통신 모듈",
+                      "item_type":  "category",
+                      "default_tier":  3,
+                      "relation":  "AI 서버 집적과 연결 대역폭이 늘면 서버 간 통신에 쓰이는 고속 광모듈 수요가 늘 수 있다.",
+                      "keywords":  [
+                                       "AI 서버",
+                                       "광트랜시버",
+                                       "네트워크"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-00571483"
+                                        ]
+                  },
+                  {
+                      "item_id":  "COM-00126186",
+                      "name":  "삼성에스디에스",
+                      "item_type":  "company",
+                      "default_tier":  3,
+                      "relation":  "클라우드 GPU 컴퓨팅 서비스를 운영한다. AI 가속기 조달 여건이 바뀌면 서비스 용량과 제공 일정에 영향을 줄 수 있다.",
+                      "keywords":  [
+                                       "GPUaaS",
+                                       "클라우드",
+                                       "AI 컴퓨팅"
+                                   ],
+                      "corp_code":  "00126186",
+                      "stock_code":  "018260"
+                  },
+                  {
+                      "item_id":  "CAT-005",
+                      "name":  "클라우드 GPU 컴퓨팅",
+                      "item_type":  "category",
+                      "default_tier":  3,
+                      "relation":  "HBM 탑재 가속기의 공급량과 조달 비용이 바뀌면 클라우드 사업자의 GPU 자원 제공 용량과 비용이 달라질 수 있다.",
+                      "keywords":  [
+                                       "HBM",
+                                       "가속기",
+                                       "GPUaaS"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-00126186"
+                                        ]
+                  },
+                  {
+                      "item_id":  "COM-00113207",
+                      "name":  "대한전선",
+                      "item_type":  "company",
+                      "default_tier":  3,
+                      "relation":  "데이터센터용 전력 케이블과 버스덕트 솔루션을 제공한다. 데이터센터가 증설되면 전력 연결 설비 발주가 늘 수 있다.",
+                      "keywords":  [
+                                       "데이터센터",
+                                       "전력 케이블",
+                                       "버스덕트"
+                                   ],
+                      "corp_code":  "00113207",
+                      "stock_code":  "001440"
+                  },
+                  {
+                      "item_id":  "CAT-006",
+                      "name":  "데이터센터 전력 케이블",
+                      "item_type":  "category",
+                      "default_tier":  3,
+                      "relation":  "데이터센터 신규 구축과 수전 용량 확대가 이뤄지면 외부 인입과 내부 배전용 케이블 수요가 늘 수 있다.",
+                      "keywords":  [
+                                       "데이터센터",
+                                       "전력 케이블",
+                                       "배전"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-00113207"
+                                        ]
+                  },
+                  {
+                      "item_id":  "COM-00231363",
+                      "name":  "LG유플러스",
+                      "item_type":  "company",
+                      "default_tier":  3,
+                      "relation":  "IDC 코로케이션 서비스를 운영한다. 고객의 AI 서버 설치가 늘면 상면과 전력 용량에 대한 수요가 변할 수 있다.",
+                      "keywords":  [
+                                       "IDC",
+                                       "코로케이션",
+                                       "데이터센터"
+                                   ],
+                      "corp_code":  "00231363",
+                      "stock_code":  "032640"
+                  },
+                  {
+                      "item_id":  "CAT-007",
+                      "name":  "IDC 코로케이션",
+                      "item_type":  "category",
+                      "default_tier":  3,
+                      "relation":  "AI 서버를 자체 시설 대신 외부 데이터센터에 설치하는 기업이 늘면 서버 설치 공간과 전력 공급 서비스 수요가 늘 수 있다.",
+                      "keywords":  [
+                                       "IDC",
+                                       "코로케이션",
+                                       "AI 서버"
+                                   ],
+                      "rep_companies":  [
+                                            "COM-00231363"
+                                        ]
+                  }
+              ]
+}
