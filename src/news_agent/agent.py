@@ -15,6 +15,7 @@ import datetime as dt
 import json
 import logging
 import time
+from collections.abc import Callable
 from pathlib import Path
 
 from src.contracts import C0Input, C1Bundle, CompanyDoc
@@ -33,13 +34,17 @@ class NewsAgent:
         self.fetcher = company_doc_fetcher
         self.fetch_body = fetch_body
 
-    def run(self, c0: C0Input, now: dt.datetime | None = None) -> C1Bundle:
+    def run(self, c0: C0Input, now: dt.datetime | None = None,
+            progress: Callable[[str], None] | None = None) -> C1Bundle:
+        """progress: 단계가 바뀔 때마다 사람이 읽을 메시지로 불린다 (화면 진행 표시용, 없어도 된다)."""
+        say = progress or (lambda msg: None)
         started = time.monotonic()
         errors: list[str] = []
         company, field_name = c0.company, c0.field
         now = now or dt.datetime.now(dt.timezone.utc).astimezone()
 
         # 1. 뉴스
+        say("최근 7일 뉴스를 모으고 서로 다른 사건을 고르는 중")
         articles: list[NewsArticle] = []
         try:
             articles = collect_news(self.naver, company, field_name, llm=self.llm, now=now,
@@ -51,6 +56,7 @@ class NewsAgent:
             errors.append(f"news: 수집 실패 ({type(exc).__name__}: {exc})")
 
         # 2. 요약
+        say(f"기사 {len(articles)}건을 요약하는 중")
         digest: NewsDigest | None = None
         if articles:
             try:
@@ -62,6 +68,7 @@ class NewsAgent:
         keywords = digest.keywords if digest else []
 
         # 3. 사업보고서 I·II (fetch는 실패해도 예외 대신 status로 알려 준다)
+        say("DART에서 사업보고서 I·II를 가져오는 중")
         try:
             company_doc = self.fetcher.fetch(field_name, keywords, today=now.date())
         except Exception as exc:
@@ -73,6 +80,7 @@ class NewsAgent:
             errors.append(f"company_doc 경고: 찾지 못한 하위 목차 {company_doc.missing_section_ids}")
 
         # 4. 프롬프트와 C1
+        say("분석 프롬프트를 만드는 중")
         news_items = []
         if digest:
             news_items = [a.to_news_item(rank=i + 1, summary=digest.summaries[i]) for i, a in enumerate(articles)]
