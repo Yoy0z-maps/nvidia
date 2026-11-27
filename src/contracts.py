@@ -224,6 +224,12 @@ class CompanyDoc(_Contract):
 # C1 프롬프트·공시 번들
 # ---------------------------------------------------------------------------
 class C1Bundle(_Contract):
+    """[1]의 출력.
+
+    prompt_draft/prompt_final = 최근 이슈 요약 + 분석 지시. 사업보고서 원문은 company_doc으로 함께 넘기고
+    프롬프트에는 옮겨 적지 않는다. 뉴스 목록(news)과 핵심어(keywords)도 프롬프트 밖에 따로 둔다.
+    """
+
     schema_version: Literal["1.1"] = SCHEMA_VERSION
     status: Status
     errors: list[str] = Field(default_factory=list)
