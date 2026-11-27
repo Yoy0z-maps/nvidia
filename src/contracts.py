@@ -41,6 +41,13 @@ SECTION_TITLES: dict[str, tuple[str, str]] = {
 }
 
 MAX_NEWS = 10
+# issue_summary(프롬프트에 들어가는 뉴스 종합 요약)는 빈 줄로 구분된 2~3문단
+ISSUE_SUMMARY_PARAGRAPHS = (2, 3)
+
+
+def split_paragraphs(text: str) -> list[str]:
+    """빈 줄(공백만 있는 줄 포함)로 문단을 나눈다."""
+    return [p.strip() for p in re.split(r"\n\s*\n", text.strip()) if p.strip()]
 
 
 class _Contract(BaseModel):
@@ -236,6 +243,13 @@ class C1Bundle(_Contract):
         ranks = [n.rank for n in self.news]
         if ranks != list(range(1, len(ranks) + 1)):
             raise ValueError(f"news.rank는 1부터 순서대로여야 합니다: {ranks}")
+        if self.issue_summary.strip():
+            lo, hi = ISSUE_SUMMARY_PARAGRAPHS
+            n = len(split_paragraphs(self.issue_summary))
+            if not lo <= n <= hi:
+                raise ValueError(f"issue_summary는 빈 줄로 구분된 {lo}~{hi}문단이어야 합니다: {n}문단")
+        elif self.status == "ok":
+            raise ValueError("status=ok이면 issue_summary가 필요합니다.")
         if self.edited != (self.prompt_final != self.prompt_draft):
             raise ValueError("edited는 prompt_final이 prompt_draft와 다를 때만 true입니다.")
         if self.status == "ok":

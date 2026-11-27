@@ -117,6 +117,23 @@ def test_failed_company_doc_needs_reason():
         CompanyDoc(status="parse_error")
 
 
+def test_issue_summary_must_be_two_or_three_paragraphs():
+    data = load_sample()
+    for text, ok in [("한 문단뿐입니다. 문장은 여러 개입니다.", False),
+                     ("문단1\n\n문단2", True),
+                     ("문단1\n  \n문단2\n\n문단3", True),
+                     ("문단1\n\n문단2\n\n문단3\n\n문단4", False)]:
+        data["issue_summary"] = text
+        if ok:
+            C1Bundle.model_validate(data)
+        else:
+            with pytest.raises(ValidationError, match="issue_summary"):
+                C1Bundle.model_validate(data)
+    data["issue_summary"] = ""
+    with pytest.raises(ValidationError, match="issue_summary"):
+        C1Bundle.model_validate(data)
+
+
 def test_edited_flag_must_match_prompts():
     data = load_sample()
     data["edited"] = True
