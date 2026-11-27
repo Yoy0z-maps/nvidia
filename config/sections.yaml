@@ -1,0 +1,53 @@
+# Section Selector 규칙
+# 제목은 정규화(공백/로마숫자/번호/특수기호 제거) 후 비교한다.
+# include_subtree: 해당 섹션과 모든 하위 섹션을 선택
+# include_only: 상위 섹션 안에서 지정된 키워드를 포함하는 하위 섹션만 선택
+# exclude: 선택된 범위 안에서도 제외할 섹션
+
+periodic:   # 사업보고서 / 반기보고서 / 분기보고서
+  include_subtree:
+    - id: business
+      section_type: business
+      match: ["사업의내용"]
+  include_only:
+    - id: company_overview
+      section_type: company_overview
+      parent: ["회사의개요"]
+      children: ["회사의개요", "주요사업", "사업의개요", "주요종속회사", "연혁"]
+    - id: mdna
+      section_type: mdna
+      parent: ["이사의경영진단및분석의견"]
+      children: ["개요", "전망", "투자", "사업부문", "영업실적", "경영환경", "향후"]
+    - id: affiliates
+      section_type: affiliates
+      parent: ["계열회사등에관한사항", "계열회사등의현황", "계열회사에관한사항"]
+      children: ["계열회사", "타법인출자", "기업집단"]
+  # 부모 매칭 없이도 제목 자체가 계열회사 관련이면 선택
+  include_standalone:
+    - id: affiliates_standalone
+      section_type: affiliates
+      match: ["계열회사등에관한사항", "계열회사의현황", "타법인출자현황"]
+  exclude:
+    - "재무에관한사항"
+    - "연결재무제표"
+    - "재무제표"
+    - "감사인의감사의견"
+    - "외부감사"
+    - "이사회"
+    - "임원의보수"
+    - "임원및직원"
+    - "주주에관한사항"
+    - "배당에관한사항"
+    - "주식의총수"
+    - "정관에관한사항"
+    - "전문가의확인"
+    - "상세표"
+    - "대표이사등의확인"
+    - "투자자보호"
+
+major:      # 주요사항 / 거래소 공시 (단일판매·공급계약, 신규시설투자 등)
+  # 문서가 짧기 때문에 표지·확인서를 제외한 본문 전체를 대상으로 한다.
+  exclude:
+    - "대표이사등의확인"
+    - "정정신고"
+    - "첨부"

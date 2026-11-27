@@ -1,0 +1,17 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+data/raw/
+data/processed/
+data/embeddings/
+data/index/
+data/metadata.db
+data/graph/
+data/market/
+data/runs/
+data/logs/
+!data/evaluation/
+.DS_Store
+.mcp/

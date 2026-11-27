@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 테스트 전용 가상 문서. 실제 공시가 아니며 DART dart4 XML의 구조(PART/SECTION-n/TITLE[ATOC,AASSOCNOTE]/P/TABLE)만 모사한다. -->
+<DOCUMENT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<DOCUMENT-NAME ACODE="11011">사업보고서</DOCUMENT-NAME>
+<FORMULA-VERSION ADATE="20240101">5.0</FORMULA-VERSION>
+<COMPANY-NAME AREGCIK="99999999">테스트전자</COMPANY-NAME>
+<BODY>
+<COVER><COVER-TITLE>사 업 보 고 서</COVER-TITLE><P>대표이사 홍길동</P></COVER>
+<PART>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-0-0-0">【 대표이사 등의 확인 】</TITLE>
+<P>확인서 본문입니다.</P>
+</PART>
+<PART>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-1-0-0">I. 회사의 개요</TITLE>
+<SECTION-1>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-1-1-0">1. 회사의 개요</TITLE>
+<P>당사는 가상의 메모리 반도체 테스트 기업으로 주요 사업은 테스트용 메모리 제조입니다.</P>
+</SECTION-1>
+<SECTION-1>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-1-2-0">2. 회사의 연혁</TITLE>
+<P>2000년 설립.</P>
+</SECTION-1>
+<SECTION-1>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-1-5-0">5. 정관에 관한 사항</TITLE>
+<P>정관 변경 이력 없음.</P>
+</SECTION-1>
+</PART>
+<PART>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-2-0-0">II. 사업의 내용</TITLE>
+<SECTION-1>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-2-1-0">1. 사업의 개요</TITLE>
+<P>당사는 테스트메모리와 테스트스토리지 제품을 생산하며, 고객사는 서버 및 모바일 기기 제조사입니다.</P>
+<P>테스트메모리 수요는 인공지능 서버 투자 확대에 따라 증가하는 추세입니다.</P>
+</SECTION-1>
+<SECTION-1>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-2-2-0">2. 주요 제품 및 서비스</TITLE>
+<P>(단위 : 백만원, %)</P>
+<TABLE BORDER="1">
+<THEAD><TR><TH>사업부문</TH><TH>품목</TH><TH>매출액</TH><TH>비율</TH></TR></THEAD>
+<TBODY>
+<TR><TD>반도체</TD><TD>테스트메모리</TD><TE>1,000</TE><TE>80.0</TE></TR>
+<TR><TD>반도체</TD><TD>테스트스토리지</TD><TE>250</TE><TE>20.0</TE></TR>
+</TBODY>
+</TABLE>
+</SECTION-1>
+<SECTION-1>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-2-3-0">3. 원재료 및 생산설비</TITLE>
+<P>주요 원재료는 실리콘 웨이퍼이며 가상공급사로부터 매입합니다.</P>
+<TABLE-GROUP>
+<TITLE ATOC="N">주요 원재료 가격변동 추이</TITLE>
+<TABLE><TBODY>
+<TR><TD>품목</TD><TD>2023년</TD><TD>2024년</TD></TR>
+<TR><TD>웨이퍼</TD><TD>100</TD><TD>110</TD></TR>
+</TBODY></TABLE>
+</TABLE-GROUP>
+</SECTION-1>
+</PART>
+<PART>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-3-0-0">III. 재무에 관한 사항</TITLE>
+<SECTION-1>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-3-1-0">1. 요약재무정보</TITLE>
+<P>재무제표 수치는 벡터 인덱스에 포함하지 않습니다.</P>
+</SECTION-1>
+</PART>
+<PART>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-4-0-0">IV. 이사의 경영진단 및 분석의견</TITLE>
+<SECTION-1>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-4-1-0">1. 예측정보에 대한 주의사항</TITLE>
+<P>예측정보는 불확실성을 포함합니다.</P>
+</SECTION-1>
+<SECTION-1>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-4-2-0">2. 개요</TITLE>
+<P>당사는 향후 생산설비 투자를 확대할 계획입니다.</P>
+</SECTION-1>
+</PART>
+<PART>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-6-0-0">VI. 이사회 등 회사의 기관에 관한 사항</TITLE>
+<P>이사회 구성 내용.</P>
+</PART>
+</BODY>
+</DOCUMENT>

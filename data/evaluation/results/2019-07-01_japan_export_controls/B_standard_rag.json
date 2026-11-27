@@ -1,0 +1,119 @@
+{
+  "arm": "B_standard_rag",
+  "summary": "일본 정부의 반도체·디스플레이 핵심 소재 3개 품목에 대한 수출 규제 강화는 국내 메모리 반도체 생산과 소재 공급망에 부정적 영향을 미칠 가능성이 높다. 해당 품목들은 국내 반도체 제조에 필수적인 소재로, 수출 허가 절차 강화로 인해 공급 차질과 생산 지연이 발생할 수 있다. 이에 따라 국내 반도체 및 디스플레이 관련 기업들의 생산 비용 증가 및 매출 감소 위험이 존재한다.",
+  "elapsed_ms": 7511,
+  "usage": {
+    "calls": 1,
+    "input_tokens": 649,
+    "output_tokens": 692,
+    "by_purpose": {
+      "baseline_rag": {
+        "calls": 1,
+        "input_tokens": 649,
+        "output_tokens": 692
+      }
+    }
+  },
+  "companies": [
+    {
+      "corp_name": "삼성전자",
+      "stock_code": "005930",
+      "path_description": "일본의 수출 규제 강화 → 핵심 소재 공급 제한 → 메모리 반도체 생산 차질 → 매출 및 수익성 악화 가능성",
+      "relationship_types": [
+        "공급망 영향",
+        "생산 영향"
+      ],
+      "impact_scope": "DIRECT",
+      "economic_impact": "NEGATIVE",
+      "conditions": [
+        "일본의 수출 규제 지속 및 강화",
+        "대체 소재 확보 실패"
+      ],
+      "counter_scenario": "대체 공급처 확보 또는 국내 소재 개발 성공 시 영향 완화 가능",
+      "technical_relevance": "메모리 반도체 제조에 필수적인 소재 사용",
+      "revenue_exposure": "UNKNOWN",
+      "cited_chunk_ids": []
+    },
+    {
+      "corp_name": "SK하이닉스",
+      "stock_code": "000660",
+      "path_description": "일본의 수출 규제 강화 → 핵심 소재 공급 제한 → 메모리 반도체 생산 차질 → 매출 및 수익성 악화 가능성",
+      "relationship_types": [
+        "공급망 영향",
+        "생산 영향"
+      ],
+      "impact_scope": "DIRECT",
+      "economic_impact": "NEGATIVE",
+      "conditions": [
+        "일본의 수출 규제 지속 및 강화",
+        "대체 소재 확보 실패"
+      ],
+      "counter_scenario": "대체 공급처 확보 또는 국내 소재 개발 성공 시 영향 완화 가능",
+      "technical_relevance": "메모리 반도체 제조에 필수적인 소재 사용",
+      "revenue_exposure": "UNKNOWN",
+      "cited_chunk_ids": []
+    },
+    {
+      "corp_name": "엘오티베큠",
+      "stock_code": "083310",
+      "path_description": "일본 수출 규제 강화 → 국내 반도체 소재 국산화 수요 증가 → 장비 및 소재 개발 수혜 가능성",
+      "relationship_types": [
+        "수혜 가능성",
+        "국산화 촉진"
+      ],
+      "impact_scope": "INDIRECT",
+      "economic_impact": "POSITIVE",
+      "conditions": [
+        "국내 소재 개발 및 국산화 정책 강화"
+      ],
+      "counter_scenario": "국내 개발 지연 시 수혜 제한적",
+      "technical_relevance": "반도체 소재 및 장비 국산화 관련 기술 보유",
+      "revenue_exposure": "UNKNOWN",
+      "cited_chunk_ids": []
+    },
+    {
+      "corp_name": "솔브레인",
+      "stock_code": "357780",
+      "path_description": "일본 수출 규제 강화 → 국내 반도체 소재 국산화 수요 증가 → 소재 공급 확대 및 매출 증가 가능성",
+      "relationship_types": [
+        "수혜 가능성",
+        "국산화 촉진"
+      ],
+      "impact_scope": "INDIRECT",
+      "economic_impact": "POSITIVE",
+      "conditions": [
+        "국내 소재 개발 및 국산화 정책 강화"
+      ],
+      "counter_scenario": "국내 개발 지연 시 수혜 제한적",
+      "technical_relevance": "반도체 소재 제조 기술 보유",
+      "revenue_exposure": "UNKNOWN",
+      "cited_chunk_ids": []
+    }
+  ],
+  "retrieved_chunk_ids": [],
+  "retrieval_calls": 1,
+  "citation_checks": [
+    {
+      "corp_name": "삼성전자",
+      "cited": [],
+      "invalid_citations": []
+    },
+    {
+      "corp_name": "SK하이닉스",
+      "cited": [],
+      "invalid_citations": []
+    },
+    {
+      "corp_name": "엘오티베큠",
+      "cited": [],
+      "invalid_citations": []
+    },
+    {
+      "corp_name": "솔브레인",
+      "cited": [],
+      "invalid_citations": []
+    }
+  ],
+  "model": "gpt-4.1-mini",
+  "as_of_date": "2019-06-30"
+}

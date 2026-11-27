@@ -1,0 +1,198 @@
+{
+  "arm": "C_multihop_graph",
+  "summary": "일본 정부의 반도체·디스플레이 핵심 소재 수출 규제 강화가 SK하이닉스의 메모리 반도체 생산과 소재 공급망에 직접적인 영향을 미칠 것으로 예상된다.",
+  "elapsed_ms": 12009,
+  "usage": {
+    "calls": 6,
+    "input_tokens": 3207,
+    "output_tokens": 594,
+    "by_purpose": {
+      "event_extraction": {
+        "calls": 1,
+        "input_tokens": 846,
+        "output_tokens": 258
+      },
+      "query_generation": {
+        "calls": 4,
+        "input_tokens": 1635,
+        "output_tokens": 121
+      },
+      "impact_analysis": {
+        "calls": 1,
+        "input_tokens": 726,
+        "output_tokens": 215
+      }
+    }
+  },
+  "retrieval_calls": 8,
+  "companies": [
+    {
+      "corp_name": "SK하이닉스",
+      "stock_code": "000660",
+      "path_description": "(이벤트 직접 연결 기업)",
+      "relationship_types": [],
+      "impact_scope": "DIRECT",
+      "economic_impact": "NEGATIVE",
+      "conditions": [
+        "일본산 핵심 소재의 대체 공급처 확보 실패 시",
+        "수출 규제 강화가 장기화될 경우"
+      ],
+      "counter_scenario": "대체 소재 확보 또는 공급망 다변화에 성공하여 생산 차질이 없을 경우",
+      "technical_relevance": "메모리 반도체 생산에 필수적인 핵심 소재 공급과 직접 관련됨",
+      "revenue_exposure": "UNKNOWN",
+      "cited_chunk_ids": [],
+      "verification_status": "PREMISE",
+      "evidence": []
+    }
+  ],
+  "graph": {
+    "nodes": [
+      {
+        "node_id": "company_000660",
+        "node_type": "COMPANY",
+        "name": "SK하이닉스",
+        "aliases": [],
+        "stock_code": "000660",
+        "corp_code": "00164779"
+      },
+      {
+        "node_id": "event_20261126-171715-4fd55b",
+        "node_type": "EVENT",
+        "name": "일본 정부가 한국으로 수출되는 반도체·디스플레이 핵심 소재 3개 품목에 대해 포괄 허가를 개별 허가로 전환하",
+        "aliases": [],
+        "stock_code": null,
+        "corp_code": null
+      },
+      {
+        "node_id": "industry_디스플레이",
+        "node_type": "INDUSTRY",
+        "name": "디스플레이",
+        "aliases": [],
+        "stock_code": null,
+        "corp_code": null
+      },
+      {
+        "node_id": "industry_반도체",
+        "node_type": "INDUSTRY",
+        "name": "반도체",
+        "aliases": [],
+        "stock_code": null,
+        "corp_code": null
+      },
+      {
+        "node_id": "product_불화수소",
+        "node_type": "PRODUCT",
+        "name": "불화수소",
+        "aliases": [],
+        "stock_code": null,
+        "corp_code": null
+      },
+      {
+        "node_id": "product_포토레지스트",
+        "node_type": "PRODUCT",
+        "name": "포토레지스트",
+        "aliases": [],
+        "stock_code": null,
+        "corp_code": null
+      },
+      {
+        "node_id": "product_플루오린폴리이미드",
+        "node_type": "PRODUCT",
+        "name": "플루오린 폴리이미드",
+        "aliases": [],
+        "stock_code": null,
+        "corp_code": null
+      }
+    ],
+    "edges": [
+      {
+        "edge_id": "premise_682242b3",
+        "source_id": "event_20261126-171715-4fd55b",
+        "target_id": "company_000660",
+        "relationship": "EXPOSED_TO",
+        "claim_type": "HYPOTHESIS",
+        "verification_status": "HYPOTHESIS",
+        "evidence": [],
+        "conditions": [],
+        "reasoning": "사용자 입력 이벤트 전제 (검증 대상 아님)",
+        "created_at": "2019-06-30",
+        "as_of_date": "2019-06-30",
+        "hop": 0
+      },
+      {
+        "edge_id": "premise_e8f9d468",
+        "source_id": "event_20261126-171715-4fd55b",
+        "target_id": "product_불화수소",
+        "relationship": "EXPOSED_TO",
+        "claim_type": "HYPOTHESIS",
+        "verification_status": "HYPOTHESIS",
+        "evidence": [],
+        "conditions": [],
+        "reasoning": "사용자 입력 이벤트 전제 (검증 대상 아님)",
+        "created_at": "2019-06-30",
+        "as_of_date": "2019-06-30",
+        "hop": 0
+      },
+      {
+        "edge_id": "premise_9c75b946",
+        "source_id": "event_20261126-171715-4fd55b",
+        "target_id": "product_포토레지스트",
+        "relationship": "EXPOSED_TO",
+        "claim_type": "HYPOTHESIS",
+        "verification_status": "HYPOTHESIS",
+        "evidence": [],
+        "conditions": [],
+        "reasoning": "사용자 입력 이벤트 전제 (검증 대상 아님)",
+        "created_at": "2019-06-30",
+        "as_of_date": "2019-06-30",
+        "hop": 0
+      },
+      {
+        "edge_id": "premise_b3d2ca98",
+        "source_id": "event_20261126-171715-4fd55b",
+        "target_id": "product_플루오린폴리이미드",
+        "relationship": "EXPOSED_TO",
+        "claim_type": "HYPOTHESIS",
+        "verification_status": "HYPOTHESIS",
+        "evidence": [],
+        "conditions": [],
+        "reasoning": "사용자 입력 이벤트 전제 (검증 대상 아님)",
+        "created_at": "2019-06-30",
+        "as_of_date": "2019-06-30",
+        "hop": 0
+      },
+      {
+        "edge_id": "premise_ef6dff99",
+        "source_id": "event_20261126-171715-4fd55b",
+        "target_id": "industry_반도체",
+        "relationship": "EXPOSED_TO",
+        "claim_type": "HYPOTHESIS",
+        "verification_status": "HYPOTHESIS",
+        "evidence": [],
+        "conditions": [],
+        "reasoning": "사용자 입력 이벤트 전제 (검증 대상 아님)",
+        "created_at": "2019-06-30",
+        "as_of_date": "2019-06-30",
+        "hop": 0
+      },
+      {
+        "edge_id": "premise_24438cfa",
+        "source_id": "event_20261126-171715-4fd55b",
+        "target_id": "industry_디스플레이",
+        "relationship": "EXPOSED_TO",
+        "claim_type": "HYPOTHESIS",
+        "verification_status": "HYPOTHESIS",
+        "evidence": [],
+        "conditions": [],
+        "reasoning": "사용자 입력 이벤트 전제 (검증 대상 아님)",
+        "created_at": "2019-06-30",
+        "as_of_date": "2019-06-30",
+        "hop": 0
+      }
+    ]
+  },
+  "stopped_reason": "탐색 완료",
+  "used_chunk_ids": [],
+  "model": "gpt-4.1-mini",
+  "as_of_date": "2019-06-30"
+}

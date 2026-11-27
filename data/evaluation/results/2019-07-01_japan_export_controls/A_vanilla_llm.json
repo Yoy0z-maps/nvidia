@@ -1,0 +1,156 @@
+{
+  "arm": "A_vanilla_llm",
+  "summary": "일본 정부의 반도체·디스플레이 핵심 소재 수출 규제 강화는 국내 메모리 반도체 산업에 직접적인 부정적 영향을 미칠 가능성이 크다. 특히 불화수소, 포토레지스트, 플루오린 폴리이미드 등 핵심 소재의 공급 차질로 인해 생산 차질과 원가 상승이 예상된다. 이에 따라 국내 주요 반도체 및 소재 기업들의 실적과 공급망 안정성에 부정적 영향이 예상된다.",
+  "elapsed_ms": 10615,
+  "usage": {
+    "calls": 1,
+    "input_tokens": 629,
+    "output_tokens": 1188,
+    "by_purpose": {
+      "baseline_vanilla": {
+        "calls": 1,
+        "input_tokens": 629,
+        "output_tokens": 1188
+      }
+    }
+  },
+  "companies": [
+    {
+      "corp_name": "삼성전자",
+      "stock_code": "005930",
+      "path_description": "일본의 핵심 소재 수출 규제 강화 → 불화수소 등 소재 공급 제한 → 삼성전자 메모리 반도체 생산 차질 가능성 → 매출 및 수익성 악화 가능성",
+      "relationship_types": [
+        "공급망 영향",
+        "생산 영향",
+        "매출 영향"
+      ],
+      "impact_scope": "DIRECT",
+      "economic_impact": "NEGATIVE",
+      "conditions": [
+        "대체 소재 확보 실패 시",
+        "공급망 다변화 지연 시"
+      ],
+      "counter_scenario": "국내외 대체 소재 개발 및 확보 성공 시 영향 완화 가능",
+      "technical_relevance": "메모리 반도체 제조 공정에 필수적인 소재 사용",
+      "revenue_exposure": "HIGH",
+      "cited_chunk_ids": []
+    },
+    {
+      "corp_name": "SK하이닉스",
+      "stock_code": "000660",
+      "path_description": "일본의 핵심 소재 수출 규제 강화 → 불화수소 등 소재 공급 제한 → SK하이닉스 메모리 반도체 생산 차질 가능성 → 매출 및 수익성 악화 가능성",
+      "relationship_types": [
+        "공급망 영향",
+        "생산 영향",
+        "매출 영향"
+      ],
+      "impact_scope": "DIRECT",
+      "economic_impact": "NEGATIVE",
+      "conditions": [
+        "대체 소재 확보 실패 시",
+        "공급망 다변화 지연 시"
+      ],
+      "counter_scenario": "국내외 대체 소재 개발 및 확보 성공 시 영향 완화 가능",
+      "technical_relevance": "메모리 반도체 제조 공정에 필수적인 소재 사용",
+      "revenue_exposure": "HIGH",
+      "cited_chunk_ids": []
+    },
+    {
+      "corp_name": "엘앤에프",
+      "stock_code": "066970",
+      "path_description": "일본의 핵심 소재 수출 규제 강화 → 국내 소재 국산화 및 대체 소재 개발 수요 증가 → 엘앤에프의 소재 개발 및 공급 기회 확대 가능성",
+      "relationship_types": [
+        "소재 개발",
+        "공급 기회"
+      ],
+      "impact_scope": "INDIRECT",
+      "economic_impact": "POSITIVE",
+      "conditions": [
+        "국내 소재 개발 성공 시",
+        "정부 지원 확대 시"
+      ],
+      "counter_scenario": "대체 소재 개발 실패 시 수혜 제한적",
+      "technical_relevance": "포토레지스트 등 소재 개발 관련 기술 보유",
+      "revenue_exposure": "MEDIUM",
+      "cited_chunk_ids": []
+    },
+    {
+      "corp_name": "솔브레인",
+      "stock_code": "357780",
+      "path_description": "일본의 핵심 소재 수출 규제 강화 → 국내 소재 국산화 및 대체 소재 개발 수요 증가 → 솔브레인의 소재 개발 및 공급 기회 확대 가능성",
+      "relationship_types": [
+        "소재 개발",
+        "공급 기회"
+      ],
+      "impact_scope": "INDIRECT",
+      "economic_impact": "POSITIVE",
+      "conditions": [
+        "국내 소재 개발 성공 시",
+        "정부 지원 확대 시"
+      ],
+      "counter_scenario": "대체 소재 개발 실패 시 수혜 제한적",
+      "technical_relevance": "포토레지스트 등 소재 개발 관련 기술 보유",
+      "revenue_exposure": "MEDIUM",
+      "cited_chunk_ids": []
+    },
+    {
+      "corp_name": "SK머티리얼즈",
+      "stock_code": "036490",
+      "path_description": "일본의 핵심 소재 수출 규제 강화 → 국내 소재 국산화 및 대체 소재 개발 수요 증가 → SK머티리얼즈의 소재 개발 및 공급 기회 확대 가능성",
+      "relationship_types": [
+        "소재 개발",
+        "공급 기회"
+      ],
+      "impact_scope": "INDIRECT",
+      "economic_impact": "POSITIVE",
+      "conditions": [
+        "국내 소재 개발 성공 시",
+        "정부 지원 확대 시"
+      ],
+      "counter_scenario": "대체 소재 개발 실패 시 수혜 제한적",
+      "technical_relevance": "불화수소 등 핵심 소재 개발 관련 기술 보유",
+      "revenue_exposure": "MEDIUM",
+      "cited_chunk_ids": []
+    },
+    {
+      "corp_name": "한솔케미칼",
+      "stock_code": "014680",
+      "path_description": "일본의 핵심 소재 수출 규제 강화 → 국내 소재 국산화 및 대체 소재 개발 수요 증가 → 한솔케미칼의 소재 개발 및 공급 기회 확대 가능성",
+      "relationship_types": [
+        "소재 개발",
+        "공급 기회"
+      ],
+      "impact_scope": "INDIRECT",
+      "economic_impact": "POSITIVE",
+      "conditions": [
+        "국내 소재 개발 성공 시",
+        "정부 지원 확대 시"
+      ],
+      "counter_scenario": "대체 소재 개발 실패 시 수혜 제한적",
+      "technical_relevance": "포토레지스트 등 소재 개발 관련 기술 보유",
+      "revenue_exposure": "MEDIUM",
+      "cited_chunk_ids": []
+    },
+    {
+      "corp_name": "에스케이이노베이션",
+      "stock_code": "096770",
+      "path_description": "일본의 핵심 소재 수출 규제 강화 → 국내 소재 국산화 및 대체 소재 개발 수요 증가 → 에스케이이노베이션의 소재 개발 및 공급 기회 확대 가능성",
+      "relationship_types": [
+        "소재 개발",
+        "공급 기회"
+      ],
+      "impact_scope": "INDIRECT",
+      "economic_impact": "POSITIVE",
+      "conditions": [
+        "국내 소재 개발 성공 시",
+        "정부 지원 확대 시"
+      ],
+      "counter_scenario": "대체 소재 개발 실패 시 수혜 제한적",
+      "technical_relevance": "소재 개발 관련 기술 보유",
+      "revenue_exposure": "MEDIUM",
+      "cited_chunk_ids": []
+    }
+  ],
+  "model": "gpt-4.1-mini",
+  "as_of_date": "2019-06-30"
+}

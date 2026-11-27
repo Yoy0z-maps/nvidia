@@ -1,0 +1,33 @@
+[project]
+name = "market-ripple"
+version = "0.1.0"
+description = "AI 기반 기업 관계 및 산업 파급효과 분석 MVP (OpenDART + OpenAI + Korea Stock MCP)"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "openai>=1.99",
+    "pydantic>=2.7",
+    "tiktoken>=0.7",
+    "faiss-cpu>=1.8",
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "networkx>=3.3",
+    "lxml>=5.2",
+    "httpx>=0.27",
+    "mcp>=1.9",
+    "plotly>=5.22",
+    "streamlit>=1.36",
+    "python-dotenv>=1.0",
+    "pyyaml>=6.0",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.2"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q -m \"not live\""
+markers = ["live: 실제 외부 API가 필요한 테스트 (기본 실행에서 제외)"]
