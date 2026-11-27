@@ -31,6 +31,8 @@ class Settings:
     openai_api_key: str = field(default="", repr=False)
     dart_api_key: str = field(default="", repr=False)
     krx_api_key: str = field(default="", repr=False)
+    naver_client_id: str = field(default="", repr=False)
+    naver_client_secret: str = field(default="", repr=False)
 
     llm_model: str = "gpt-4.1-mini"
     embedding_model: str = "text-embedding-3-small"
@@ -75,6 +77,8 @@ class Settings:
             openai_api_key=os.getenv("OPENAI_API_KEY", ""),
             dart_api_key=os.getenv("DART_API_KEY", ""),
             krx_api_key=os.getenv("KRX_API_KEY", "").strip().strip("\"'"),
+            naver_client_id=os.getenv("NAVER_CLIENT_ID", "").strip().strip("\"'"),
+            naver_client_secret=os.getenv("NAVER_CLIENT_SECRET", "").strip().strip("\"'"),
             llm_model=os.getenv("LLM_MODEL", "gpt-4.1-mini"),
             embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
             embedding_dimensions=_int("EMBEDDING_DIMENSIONS", 1536),
@@ -160,7 +164,7 @@ class Settings:
         """API Key를 제외한 설정값 (실행 기록용)."""
         out = {}
         for f in fields(self):
-            if f.name.endswith("api_key"):
+            if f.name.endswith("api_key") or f.name.startswith("naver_client"):
                 continue
             v = getattr(self, f.name)
             out[f.name] = str(v) if isinstance(v, Path) else v
@@ -190,7 +194,8 @@ def setup_logging(settings: Settings) -> None:
         return
     root.setLevel(settings.log_level.upper())
     fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
-    secret_filter = _SecretFilter([settings.openai_api_key, settings.dart_api_key, settings.krx_api_key])
+    secret_filter = _SecretFilter([settings.openai_api_key, settings.dart_api_key, settings.krx_api_key,
+                                   settings.naver_client_id, settings.naver_client_secret])
     for h in (logging.StreamHandler(), logging.FileHandler(settings.logs_dir / "market_ripple.log", encoding="utf-8")):
         h.setFormatter(fmt)
         h.addFilter(secret_filter)
