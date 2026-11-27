@@ -1,5 +1,6 @@
 {
     "schema_version":  "1.0",
+    "pool_version":  "2026-11-27",
     "anchor":  {
                    "name":  "SK하이닉스",
                    "corp_code":  "00164779"

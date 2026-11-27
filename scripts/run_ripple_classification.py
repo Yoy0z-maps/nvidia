@@ -10,7 +10,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from config.settings import PROJECT_ROOT, Settings
 from src.contracts import C1Bundle, Status
@@ -25,8 +25,12 @@ C2 사전 풀의 모든 항목에 대해 C1의 분야, 핵심어, 확정 프롬�
 차수, 영향 방향, 이유를 배정한다. C2의 criteria를 차수 기준으로 사용한다.
 항목 ID는 풀에 있는 값을 각각 정확히 한 번 쓴다. 1차 5개, 2차 15개,
 3차는 전체 항목 수에서 20을 뺀 개수로 배정한다.
-impact는 해당 항목에 미치는 방향이다. 근거가 부족하면 unclear를 사용한다.
-reason은 한국어 한두 문장으로 작성한다. 확인되지 않은 거래나 수치는 단정하지 않는다.
+impact는 해당 항목에 미치는 방향이다. C1 이슈에 직접 근거한 판단을 우선한다.
+C1에 직접 언급이 없어도 이슈에서 항목까지 이어지는 연결 고리가 논리적으로 성립하면 가설로 판단할 수 있다.
+가설로 판단했으면 reason에 그 연결 고리를 밝히고, 이슈에 직접 근거한 판단보다 confidence를 낮게 매긴다.
+impact는 reason이 설명하는 방향과 일치해야 한다. 좋은 영향과 나쁜 영향의 근거가 함께 있으면 mixed를,
+연결 고리는 있지만 방향을 판단할 근거가 없거나 연결 고리 자체를 세울 수 없으면 unclear를 사용한다.
+reason은 한국어 한두 문장으로 작성한다. 확인되지 않은 거래나 수치는 지어내거나 단정하지 않는다.
 confidence는 판단의 확실성을 0 이상 1 이하로 표시한다.
 이전 응답의 검증 오류가 있으면 이를 고친 완전한 배정 목록을 반환한다.
 """.strip()
@@ -61,7 +65,7 @@ class PoolItem(Contract):
 
 class Pool(Contract):
     schema_version: Literal["1.0"]
-    pool_version: str | None = None
+    pool_version: str = Field(min_length=1)  # 풀 내용의 버전. C3가 어느 풀로 만들어졌는지 남긴다.
     anchor: Anchor
     criteria: Criteria
     items: list[PoolItem]
@@ -148,7 +152,7 @@ def classify(c1: C1Bundle, pool: Pool, llm: LLM) -> C3:
     metadata = {
         "request_id": c1.request_id,
         "field": c1.field,
-        "pool_version": pool.pool_version or pool.schema_version,
+        "pool_version": pool.pool_version,
     }
     if c1.status == "error" or not c1.prompt_final.strip():
         return C3(
