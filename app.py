@@ -54,8 +54,9 @@ with st.sidebar:
     missing = [k for k in ("openai_api_key", "dart_api_key") if not getattr(settings, k)]
     if missing:
         st.error(f"미설정 환경변수: {', '.join(m.upper() for m in missing)} (.env 확인)")
-    if not settings.krx_api_key:
-        st.warning("KRX_API_KEY 미설정 - 주가 조회 불가")
+    # [비활성화] 주가 반응 섹션을 숨겨 KRX 키 경고도 표시하지 않음
+    # if not settings.krx_api_key:
+    #     st.warning("KRX_API_KEY 미설정 - 주가 조회 불가")
     max_hops = st.slider("분석 최대 Hop", 1, 5, settings.max_analysis_hops)
     max_companies = st.number_input("최대 수집 기업 수", 1, 50, settings.max_companies)
     disc_hops = st.slider("기업 탐색 Hop", 1, 3, settings.max_discovery_hops)
@@ -206,7 +207,7 @@ with tabs[1]:
         st.info("그래프가 비어 있습니다.")
 
 # [비활성화] Financial Analysis / Evaluation 탭 - 필요 시 아래 주석을 풀고 tabs 목록에 다시 추가
-# (주가 반응은 Research 탭의 '주가 반응 (KRX)' 섹션에서 계속 볼 수 있음)
+# (Research 탭의 '주가 반응 (KRX)' 섹션도 research_view.render_result에서 주석 처리됨)
 # # ---------------------------------------------------------------- Financial
 # with tabs[2]:
 #     res = st.session_state.get("result")

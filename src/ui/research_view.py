@@ -37,6 +37,15 @@ CSS = """<style>
 .mr-card-k{font-size:12px;opacity:.65}
 .mr-card-v{font-size:18px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mr-chip{display:inline-block;padding:2px 8px;margin:2px 4px 2px 0;border-radius:6px;background:rgba(128,128,128,.12);font-size:12px}
+.mr-tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+.mr-tags .mr-chip{margin:0}
+/* 인사이트 카드: 같은 줄의 카드는 높이를 맞추고, 내용이 적은 카드도 최소 높이를 채운다 */
+div[data-testid="stHorizontalBlock"]:has([class*="st-key-mrcard"]){align-items:stretch}
+div[data-testid="stColumn"]:has([class*="st-key-mrcard"]) > [data-testid="stVerticalBlock"],
+[data-testid="stLayoutWrapper"]:has(> [class*="st-key-mrcard"]){height:100%}
+[class*="st-key-mrcard"]{height:100%;min-height:420px;box-sizing:border-box}
+/* 근거 토글은 카드 맨 아래에 붙인다 */
+[class*="st-key-mrcard"] [data-testid="stLayoutWrapper"]:last-child{margin-top:auto}
 </style>"""
 
 
@@ -239,14 +248,17 @@ def render_company_table(res: dict) -> None:
             f"<td>{_e(r.get('impact_factor') or '-')}</td>"
             f"<td>{'직접' if t == 0 else f'{t}차'}</td>"
             f"<td>{status_badge(r.get('verification_status'))}</td>"
-            f"<td>{_e(r.get('revenue_exposure') or 'UNKNOWN')}</td>"
-            + (f"<td>{_e(_fin_cols(res, r.get('stock_code'))[0])}</td><td>{_e(_fin_cols(res, r.get('stock_code'))[1])}</td>"
-               if res.get("financial") else "")
-            + "</tr>")
+            # [비활성화] 매출 노출도 (현재 데이터가 모두 UNKNOWN)
+            # f"<td>{_e(r.get('revenue_exposure') or 'UNKNOWN')}</td>"
+            # [비활성화] 주가 반응 열 (최근 20일 / 이후 20일)
+            # + (f"<td>{_e(_fin_cols(res, r.get('stock_code'))[0])}</td><td>{_e(_fin_cols(res, r.get('stock_code'))[1])}</td>"
+            #    if res.get("financial") else "")
+            "</tr>")
     st.markdown('<table class="mr-table"><thead><tr><th>기업</th><th>영향 방향</th><th>관계</th><th>영향 요인</th>'
-                '<th>단계</th><th>검증 상태</th><th>매출 노출도</th>'
-                + ("<th>최근 20일</th><th>이후 20일</th>" if res.get("financial") else "")
-                + '</tr></thead><tbody>'
+                '<th>단계</th><th>검증 상태</th>'
+                # '<th>매출 노출도</th>'  [비활성화]
+                # + ("<th>최근 20일</th><th>이후 20일</th>" if res.get("financial") else "")  [비활성화]
+                '</tr></thead><tbody>'
                 + "".join(body) + "</tbody></table>", unsafe_allow_html=True)
 
 
@@ -267,7 +279,7 @@ def _section_label(path: str) -> str:
     return " > ".join(p for p in parts if p and p.upper() not in ("LIBRARY", "SECTION", "PART")) or "(본문)"
 
 
-def _source_html(src: dict, lookup=None) -> str:
+def _source_html(src: dict, lookup=None, show_raw: bool = True) -> str:
     """기업 · 문서 · 공시일 · 섹션 · 관계 · 인용 · DART 원문 링크 · 원문 Chunk(토글)."""
     full = dict(src)
     if lookup is not None and full.get("chunk_id") and (not full.get("section_path") or not full.get("report_name")
@@ -285,7 +297,7 @@ def _source_html(src: dict, lookup=None) -> str:
             if full.get("source_url") else "")
     raw = full.get("raw_text") or ""
     detail = ""
-    if raw:
+    if raw and show_raw:
         body = _e(raw)
         if quote and _e(quote) in body:
             body = body.replace(_e(quote), f"<mark>{_e(quote)}</mark>", 1)
@@ -296,127 +308,88 @@ def _source_html(src: dict, lookup=None) -> str:
             + (f"<blockquote>{_e(quote)}</blockquote>" if quote else "") + detail + "</div>")
 
 
-def render_sources(sources: list[dict], lookup=None, empty: str = "") -> None:
+def render_sources(sources: list[dict], lookup=None, empty: str = "", show_raw: bool = True) -> None:
     if not sources:
         if empty:
             st.caption(empty)
         return
     st.markdown("**출처 공시**")
-    st.markdown("".join(_source_html(x, lookup) for x in sources), unsafe_allow_html=True)
+    st.markdown("".join(_source_html(x, lookup, show_raw) for x in sources), unsafe_allow_html=True)
 
 
 DIR_LABEL = {"POSITIVE": ("긍정 가능성", "#166534", "#dcfce7"), "NEGATIVE": ("부정 가능성", "#991b1b", "#fee2e2"),
              "UNCERTAIN": ("방향 불확실", "#92400e", "#fef3c7")}
 
 
-CARD_CSS = """<style>
-.mr-ic{height:150px;overflow:hidden;display:flex;flex-direction:column;gap:5px}
-.mr-ic-top{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
-.mr-ic-title{font-weight:700;font-size:15px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.mr-ic-title small{font-weight:400;opacity:.6;font-size:12px;margin-left:4px}
-.mr-ic-body{font-size:13px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.mr-ic-foot{margin-top:auto;font-size:11.5px;opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-</style>"""
-
-
-def _company_card_html(r: dict) -> str:
-    ev = r.get("evidence", [])
-    return (f"<div class='mr-ic'><div class='mr-ic-top'>{impact_badge(r.get('economic_impact'), r.get('verification_status'))}"
-            f"{status_badge(r.get('verification_status'))}<span class='mr-chip'>{_e(r.get('role') or '-')}</span></div>"
-            f"<div class='mr-ic-title'>{_e(r['corp_name'])}<small>{_e(r.get('stock_code') or '')}</small></div>"
-            f"<div class='mr-ic-body'>{_e(r.get('impact_factor') or r.get('path') or '')}</div>"
-            f"<div class='mr-ic-foot'>출처 공시 {len(ev)}건 · 경로: {_e(r.get('path', ''))}</div></div>")
-
-
-def _hypothesis_card_html(i: dict) -> str:
-    lab, fg, bg = DIR_LABEL.get(i.get("direction"), DIR_LABEL["UNCERTAIN"])
-    names = [c["name"] for c in i.get("companies", [])]
-    return (f"<div class='mr-ic'><div class='mr-ic-top'>{badge(lab, fg, bg)}"
-            f"<span class='mr-chip'>{_e(i.get('tier'))}차 · {_e(i.get('kind'))}</span></div>"
-            f"<div class='mr-ic-title'>{_e(i.get('title'))}</div>"
-            f"<div class='mr-ic-body'>{_e(i.get('rationale', ''))}</div>"
-            f"<div class='mr-ic-foot'>참고 공시 {len(i.get('sources', []))}건"
-            + (f" · 관련: {_e(', '.join(names))}" if names else "") + "</div></div>")
-
-
-def _company_detail(r: dict, lookup=None) -> None:
+def _company_card(r: dict, lookup=None) -> None:
     status = STATUS.get(r.get("verification_status"), ("-",))[0]
-    st.markdown(f"{impact_badge(r.get('economic_impact'), r.get('verification_status'))} "
-                f"{status_badge(r.get('verification_status'))} <span class='mr-chip'>{_e(r.get('role') or '-')}</span>",
-                unsafe_allow_html=True)
-    if r.get("impact_factor"):
-        st.markdown(f"**영향 요인**  \n{r['impact_factor']}")
-    st.markdown(f"**경로**  \n{r.get('path', '')}")
-    if r.get("conditions"):
-        st.markdown("**영향 발생 조건**\n" + "\n".join(f"- {c}" for c in r["conditions"]))
-    if r.get("counter_scenario"):
-        st.markdown(f"**반대 시나리오**  \n{r['counter_scenario']}")
-    if r.get("technical_relevance"):
-        st.caption(f"기술적 연관성: {r['technical_relevance']} · 매출 노출도: {r.get('revenue_exposure') or 'UNKNOWN'}")
-    ev = r.get("evidence", [])
-    with st.expander(f"근거 보기 (출처 공시 {len(ev)}건 · {status})", expanded=bool(ev)):
-        render_sources(ev, lookup, empty="원문 인용 근거 없음 (이벤트 직접 연결 또는 가설 경로)")
+    with st.container(border=True, key=f"mrcard_c_{id(r)}"):
+        st.markdown(f"<div class='mr-tags'>{impact_badge(r.get('economic_impact'), r.get('verification_status'))}"
+                    f"{status_badge(r.get('verification_status'))}"
+                    f"<span class='mr-chip'>{_e(r.get('role') or '-')}</span></div>"
+                    f"<b>{_e(r['corp_name'])}</b> <span style='opacity:.6;font-size:12px'>"
+                    f"{_e(r.get('stock_code') or '')}</span>"
+                    + (f"<br>{_e(r['impact_factor'])}" if r.get("impact_factor") else ""),
+                    unsafe_allow_html=True)
+        st.caption(f"경로: {r.get('path', '')}")
+        if r.get("conditions"):
+            st.markdown("**영향 발생 조건**\n" + "\n".join(f"- {c}" for c in r["conditions"]))
+        if r.get("counter_scenario"):
+            st.markdown(f"**반대 시나리오**: {r['counter_scenario']}")
+        if r.get("technical_relevance"):
+            st.caption(f"기술적 연관성: {r['technical_relevance']}")
+            # [비활성화] 매출 노출도: {r.get('revenue_exposure') or 'UNKNOWN'}
+        ev = r.get("evidence", [])
+        with st.expander(f"근거 보기 (출처 공시 {len(ev)}건 · {status})"):
+            # 공시 근거 기반 카드는 원문 인용까지만 보여 준다 (원문 Chunk 전체 보기 제거)
+            render_sources(ev, lookup, empty="원문 인용 근거 없음 (이벤트 직접 연결 또는 가설 경로)", show_raw=False)
 
 
-def _hypothesis_detail(i: dict, lookup=None) -> None:
+def _hypothesis_card(i: dict, lookup=None) -> None:
     lab, fg, bg = DIR_LABEL.get(i.get("direction"), DIR_LABEL["UNCERTAIN"])
-    st.markdown(f"{badge(lab, fg, bg)} <span class='mr-chip'>{_e(i.get('tier'))}차 · {_e(i.get('kind'))}</span>",
-                unsafe_allow_html=True)
-    st.write(i.get("rationale", ""))
-    comps = []
-    for c in i.get("companies", []):
-        if c.get("resolved"):
-            tag = " · 그래프에 있음" if c.get("in_graph") else ""
-            comps.append(f"<span class='mr-chip'>{_e(c['name'])} ({_e(c.get('stock_code') or '비상장')}){tag}</span>")
-        else:
-            comps.append(f"<span class='mr-chip' style='opacity:.55'>{_e(c['name'])} (식별 안 됨)</span>")
-    if comps:
-        st.markdown("**관련 상장사** " + "".join(comps), unsafe_allow_html=True)
-    if i.get("what_to_check"):
-        st.markdown(f"**확인할 것**  \n{i['what_to_check']}")
-    src = i.get("sources", [])
-    with st.expander(f"근거 보기 (참고 공시 {len(src)}건)", expanded=bool(src)):
-        render_sources(src, lookup, empty="참고한 공시 없음 — 산업 지식만으로 세운 가설입니다.")
+    with st.container(border=True, key=f"mrcard_h_{id(i)}"):
+        st.markdown(f"<div class='mr-tags'>{badge(lab, fg, bg)}<span class='mr-chip'>{_e(i.get('tier'))}차 · {_e(i.get('kind'))}</span></div>"
+                    f"<b>{_e(i.get('title'))}</b>", unsafe_allow_html=True)
+        st.write(i.get("rationale", ""))
+        comps = []
+        for c in i.get("companies", []):
+            if c.get("resolved"):
+                tag = " · 그래프에 있음" if c.get("in_graph") else ""
+                comps.append(f"<span class='mr-chip'>{_e(c['name'])} ({_e(c.get('stock_code') or '비상장')}){tag}</span>")
+            else:
+                comps.append(f"<span class='mr-chip' style='opacity:.55'>{_e(c['name'])} (식별 안 됨)</span>")
+        if comps:
+            st.markdown("관련 상장사: " + "".join(comps), unsafe_allow_html=True)
+        if i.get("what_to_check"):
+            st.caption("확인할 것: " + i["what_to_check"])
+        src = i.get("sources", [])
+        with st.expander(f"근거 보기 (참고 공시 {len(src)}건)"):
+            render_sources(src, lookup, empty="참고한 공시 없음 — 산업 지식만으로 세운 가설입니다.")
 
 
-@st.dialog("인사이트 자세히 보기", width="large")
-def _detail_dialog(kind: str, item: dict, lookup=None) -> None:
-    st.markdown(CSS + SOURCE_CSS, unsafe_allow_html=True)
-    if kind == "company":
-        st.subheader(f"{item['corp_name']} {item.get('stock_code') or ''}".strip())
-        _company_detail(item, lookup)
-    else:
-        st.subheader(item.get("title", ""))
-        _hypothesis_detail(item, lookup)
-
-
-def _card_grid(items: list, kind: str, lookup=None, cols: int = 3, key: str = "") -> None:
-    """같은 크기의 카드(요약만)를 격자로 놓고, '더보기'를 누르면 전체 내용과 근거를 대화상자로 연다."""
-    to_html = _company_card_html if kind == "company" else _hypothesis_card_html
+def _card_grid(items: list, render, lookup=None, cols: int = 2) -> None:
     for start in range(0, len(items), cols):
         columns = st.columns(cols)
-        for n, (col, item) in enumerate(zip(columns, items[start:start + cols])):
-            with col, st.container(border=True):
-                st.markdown(to_html(item), unsafe_allow_html=True)
-                if st.button("더보기", key=f"more_{key}_{kind}_{start + n}", width="stretch"):
-                    _detail_dialog(kind, item, lookup)
+        for col, item in zip(columns, items[start:start + cols]):
+            with col:
+                render(item, lookup)
 
 
 def render_insight_section(res: dict, lookup=None) -> None:
     """공시 근거 기반 인사이트(기업별)와 가설 인사이트를 카드로 보여 주고, 출처 공시만 토글로 펼친다."""
-    st.markdown(SOURCE_CSS + CARD_CSS, unsafe_allow_html=True)
+    st.markdown(SOURCE_CSS, unsafe_allow_html=True)
     st.markdown("##### 인사이트")
     rows = res.get("company_results", [])
     ins = res.get("insights") or []
     st.caption(f"공시 근거로 연결된 기업 {len(rows)}개 · 근거 미확인 가설 {len(ins)}개 — "
-               "카드의 '더보기'를 누르면 조건·반대 시나리오와 출처 공시(문서 · 섹션 · 원문 인용)를 볼 수 있습니다.")
+               "'근거 보기'를 펼치면 출처 공시(문서 · 섹션 · 원문 인용)를 볼 수 있습니다.")
     if rows:
         st.markdown("**공시 근거 기반**")
-        _card_grid(rows, "company", lookup, key=str(res.get("run_id")))
+        _card_grid(rows, _company_card, lookup)
     if ins:
         st.markdown("**가설 인사이트** <span class='mr-badge' style='color:#6b7280;background:#f3f4f6'>근거 미확인</span>",
                     unsafe_allow_html=True)
-        _card_grid(ins, "hypothesis", lookup, key=str(res.get("run_id")))
+        _card_grid(ins, _hypothesis_card, lookup)
 
 
 def render_all_relations(res: dict) -> None:
